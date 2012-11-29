@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Multiple models on the same page</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body 
+		{
+			font-family: Monospace;
+			font-weight: bold;
+			background-color: #ccccff;
+			margin: 0px;
+		}
+		div 
+		{
+			display:inline-block;
+			background-color: #ffffff;
+			border:1px solid black;
+			width:400px;
+			height:300px;
+		}
+	</style>
+</head>
+
+
+<script src="js/three.min.js"></script>
+<script src="js/prototype.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/brigl_materials.js"></script>
+<script src="js/brigl.js"></script>
+
+<script>
+
+function load(builder, modelname, containerid)
+{
+		builder.loadModelByName(modelname, {}, function(model){
+			
+			new BRIGL.BriglContainer(document.getElementById(containerid), model);	
+	});	
+}
+
+function init() 
+{
+	if ( ! Detector.webgl ) { alert("no webgl"); return; }
+  var oldlog = BRIGL.log;
+	BRIGL.log = function(msg){oldlog(msg);document.getElementById("logarea").textContent = msg;};
+	var builder = new BRIGL.Builder("parts/");
+	
+	load(builder,"model8120.ldr", "container1");	
+	load(builder,"model8121.ldr", "container2");	
+	load(builder,"model5867.ldr", "container3");	
+	load(builder,"modelViper.ldr", "container4");	
+	load(builder,"model20014.ldr", "container5");	
+	load(builder,"model8122.ldr", "container6");	
+	load(builder,"model8815.ldr", "container7");	
+	load(builder,"model4492.ldr", "container8");	
+	load(builder,"model4539.ldr", "container9");	
+	
+	
+}
+
+
+
+</script>
+<body onload="init();">
+<p id="logarea">Initializing...</p>
+<div id="container1"></div>
+<div id="container2"></div>
+<div id="container3"></div>
+<div id="container4"></div>
+<div id="container5"></div>
+<div id="container6"></div>
+<div id="container7"></div>
+<div id="container8"></div>
+<div id="container9"></div>
+</body>
+</html>

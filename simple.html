@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Simplest example</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body { background-color: #ccccff;	margin: 0px; font-family: Monospace; font-weight: bold; }
+		div  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; }
+	</style>
+</head>
+
+<script src="js/three.min.js"></script>
+<script src="js/prototype.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/brigl_materials.js"></script>
+<script src="js/brigl.js"></script>
+
+<script>
+
+function init() 
+{
+  if ( ! Detector.webgl ) { alert("no webgl"); return; }
+  
+  // capture and show log
+	BRIGL.log = function(msg){document.getElementById("logarea").textContent = msg;};
+	
+	// create the builder object to obtain the models
+	var builder = new BRIGL.Builder("parts/");
+	
+	// load a model..
+	builder.loadModelByName("modelViper.ldr", {}, function(threejsMesh)
+	{
+		
+			// when done, show it in a BriglContainer
+			new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh).render();	
+		
+	});
+}
+
+</script>
+<body onload="init();">
+	<p id="logarea">Initializing...</p>
+	<div id="container"></div>
+</body>
+</html>

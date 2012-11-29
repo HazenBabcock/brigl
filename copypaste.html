@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>User input</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body 
+		{
+			font-family: Monospace;
+			font-weight: bold;
+			background-color: #ccccff;
+			margin: 0px;
+		}
+		div 
+		{
+			background-color: #ffffff;
+			border:1px solid black;
+			width:600px;
+			height:400px;
+		}
+		textarea 
+		{
+			background-color: #ffffff;
+			border:1px solid black;
+			width:600px;
+			height:100px;
+		}
+		
+	</style>
+</head>
+
+
+<script src="js/three.min.js"></script>
+<script src="js/prototype.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/brigl_materials.js"></script>
+<script src="js/brigl.js"></script>
+
+<script>
+
+var builder;
+var briglContainer;
+var logarea;
+
+// FUNCTIONS 	
+function clicked()
+{
+	logarea.value = "";
+	var lines = document.getElementById("lines").checked;
+	builder.loadModelByData("pastedModel.dat", document.getElementById("ta").value, {drawLines: lines}, function(ne){
+		
+		briglContainer.setModel(ne, true);
+	} );
+}	
+function init() 
+{
+  if ( ! Detector.webgl ) { alert("no webgl"); return; }
+  
+  // capture log
+  logarea = document.getElementById("log")
+  BRIGL.log = function(msg)
+  {
+  	logarea.value += (msg+"\n");
+  }
+
+	builder = new BRIGL.Builder("parts/");
+	builder.loadModelByName("modelViper.ldr", {}, function(model){
+		briglContainer = new BRIGL.BriglContainer(document.getElementById("container"), model);	
+	} );
+	
+}
+
+
+
+</script>
+<body onload="init();">
+Copy the content of an LDRAW file in the textarea below: <br/>
+<textarea id="ta">
+0 FILE EscapePod.ldr
+0 Main model
+0 Name: EscapePod.ldr
+0 Author: Nicola
+0 Unofficial Model
+0 !LPUB BOM PLACEMENT LOCAL CENTER PAGE INSIDE 0 0.0912
+0 !LPUB BOM CONSTRAIN LOCAL HEIGHT 3.52667
+0 !LPUB CALLOUT PLI PER_STEP GLOBAL FALSE
+0 !LPUB PLI INSTANCE_COUNT FONT GLOBAL "Arial,18,-1,5,75,0,0,0,0,0"
+0 !LPUB MULTI_STEP PLI MARGINS GLOBAL 0.3937 0.0500
+0 !LPUB INSERT PAGE
+0 !LPUB INSERT BOM
+0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CONFIG 0 0
+0 STEP
+0 !LPUB MULTI_STEP BEGIN
+1 7 -20 16 0 1 0 0 0 1 0 0 0 1 4871.dat
+1 7 -60 16 0 -1 0 0 0 1 0 0 0 -1 4871.dat
+0 STEP
+1 25 10 24 0 0 0 -1 0 1 0 1 0 0 43722.dat
+1 25 -90 24 0 0 0 1 0 1 0 -1 0 0 43723.dat
+0 STEP
+1 25 -40 8 -30 1 0 0 0 1 0 0 0 1 3710.dat
+1 25 -40 8 30 1 0 0 0 1 0 0 0 1 3710.dat
+0 STEP
+1 25 -70 16 0 0 0 -1 0 1 0 1 0 0 3023.dat
+1 25 -10 16 0 0 0 -1 0 1 0 1 0 0 3023.dat
+0 STEP
+1 25 -70 8 0 0 0 -1 0 1 0 1 0 0 3023.dat
+1 25 -10 8 0 0 0 -1 0 1 0 1 0 0 3023.dat
+0 STEP
+1 25 -40 -8 30 1 0 0 0 1 0 0 0 1 3023.dat
+1 25 -40 0 30 1 0 0 0 1 0 0 0 1 3023.dat
+0 STEP
+0 !LPUB MULTI_STEP END
+0 !LPUB MULTI_STEP BEGIN
+1 40 -40 -24 -10 1 0 0 0 1 0 0 0 1 2437.dat
+0 STEP
+1 8 -40 -32 30 -1 0 0 0 1 0 0 0 -1 52038.dat
+0 STEP
+1 25 -40 -32 0 -1 0 0 0 1 0 0 0 -1 3020.dat
+0 STEP
+1 25 -40 -40 20 -1 0 0 0 1 0 0 0 -1 3022.dat
+0 STEP
+1 25 -50 -32 -10 1 0 0 0 1 0 0 0 1 54200.dat
+1 25 -30 -32 -10 1 0 0 0 1 0 0 0 1 54200.dat
+1 25 -40 -48 20 1 0 0 0 1 0 0 0 1 3068b.dat
+0 
+0 STEP
+0 !LPUB MULTI_STEP END
+0 ROTSTEP 0 90 0 REL
+0 !LPUB MULTI_STEP BEGIN
+1 25 -10 -22 40 1 0 0 0 0 1 0 -1 0 3024.dat
+1 25 -70 -22 40 1 0 0 0 0 1 0 -1 0 3024.dat
+0 STEP
+1 8 -70 -12 40 0 0 1 -1 0 0 0 -1 0 85984.dat
+1 8 -10 -12 40 0 0 -1 1 0 0 0 -1 0 85984.dat
+0 STEP
+0 !LPUB PLI CONSTRAIN LOCAL HEIGHT 1.76667
+0 ROTSTEP END
+0 ROTSTEP 0 90 0 REL
+0 !LPUB CALLOUT BEGIN
+1 8 -50 -12 72 0 0 1 -1 0 0 0 -1 0 engine.ldr
+0 !LPUB CALLOUT POINTER CENTER 0 0.723549 0.140845
+0 !LPUB CALLOUT END
+0 STEP
+0 !LPUB PLI CONSTRAIN LOCAL HEIGHT 1.74667
+0 ROTSTEP END
+0 STEP
+0 ROTSTEP 0 90 0 REL
+0 !LPUB CALLOUT BEGIN
+1 8 -30 -12 72 0 0 -1 1 0 0 0 -1 0 engine.ldr
+0 !LPUB CALLOUT POINTER CENTER 0 0.798408 0.397887
+0 !LPUB CALLOUT END
+0 STEP
+0 ROTSTEP END
+0 STEP
+0
+0 NOFILE 
+0 FILE engine.ldr
+0 Engine
+0 Name: Engine.ldr
+0 Author: Nicola
+0 Unofficial Model
+0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CONFIG 0 0
+1 7 0 8 0 1 0 0 0 1 0 0 0 1 3937.dat
+1 7 0 9.429 -5.151 -1 0 0 0 0.857167 0.515038 0 0.515038 -0.857167 6134.dat
+0 STEP
+1 8 0 7.722 -17.843 -1 0 0 0 0.857167 0.515038 0 0.515038 -0.857167 2460.dat
+0 STEP
+1 7 0 -10.279 -28.658 -1 0 0 0 -0.515038 0.857167 0 0.857167 0.515038 55981.dat
+0 
+0 NOFILE 
+
+</textarea><br/>
+<button onclick="clicked()">Load</button><input type="checkbox" id="lines" >Lines</input><br/>
+Log: <br/>
+<textarea id="log"></textarea><br/>
+Model: <br/>
+<div id="container"></div>
+</body>
+</html>

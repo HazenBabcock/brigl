@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+        <title>Beta step example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+                body { background-color: #ccccff;       margin: 0px; font-family: Monospace; font-weight: bold; }
+                #container  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; position:relative; top:0px; left:0px; }
+                #stepbox    { position:absolute; bottom:0; right:0 }
+        </style>
+</head>
+
+<script src="js/three.min.js"></script>
+<script src="js/prototype.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/brigl_materials.js"></script>
+<script src="js/brigl.js"></script>
+
+<script>
+var step = 0;
+var totStep = 0;
+var builder;
+var cont;
+var offset;
+
+function updateStepDisplay()
+{
+	document.getElementById("x").textContent = step+"/"+totStep;
+}
+
+function init() 
+{
+  if ( ! Detector.webgl ) { alert("no webgl"); return; }
+  
+  // capture and show log
+        BRIGL.log = function(msg){document.getElementById("logarea").innerText = msg;};
+        
+        // create the builder object to obtain the models
+        builder = new BRIGL.Builder("parts/");
+        
+        // load a model..
+        builder.loadModelByName("modelViper.ldr", {}, function(mesh)
+        {
+        	offset = mesh.brigl.offset;
+        	
+        	totStep = mesh.brigl.part.numSteps;
+        	step = totStep;
+        	updateStepDisplay();
+        	
+          cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
+          cont.render();
+        });
+}
+
+function dostep(d)
+{
+        step += d;
+        if(step<1) step = 1;
+        if(step>totStep) step = totStep;
+        builder.loadModelByName("modelViper.ldr", {stepLimit:step, centerOffset:offset }, function(mesh)
+                {
+                updateStepDisplay();
+                cont.setModel(mesh, false);
+        } );
+}
+
+</script>
+<body onload="init();">
+        <p id="logarea">Initializing...</p>
+        <div id="container">
+				<div id="stepbox">
+        <input type="button" onclick="dostep(-1);" value="<" />
+        <span id="x">?/?</span>
+        <input type="button" onclick="dostep(1);" value=">" />
+        </div>
+        </div>
+</body>
+</html>

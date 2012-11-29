@@ -1,0 +1,43 @@
+How to prepare the software
+===========================
+
+The software can only run is it is hosted on a server. It will not run
+opening the html files on the browser. This is becouse part files are
+downloaded asyncronously from the server.
+
+Included is a tiny webserver that you can use in your pc.
+
+1. Download the official library
+
+If you don't already have it, download the official library from:
+http://www.ldraw.org/library/updates/complete.zip
+
+Unzip it and copy the content of the subfolder "p" into "parts".
+You must merge the folders becouse the program can't try different
+directory as desktop software can.
+
+2. (optional) Download the unofficial parts library
+
+Usually models make use of unofficial parts. If you want, you can 
+download the unofficial parts library from:
+
+http://www.ldraw.org/library/unofficial/ldrawunf.zip
+
+Unzip the content and merge both "p" and "parts" of unofficial into 
+the official "parts". Overwrite when asked.
+
+3. (optional) Subdivide all files in subfolder
+
+The "parts" folder now contains 7000+ files. Many servers and pc
+complains about so many files in a single dir, and performances
+are degraded.
+For any file or subdirectory in "parts", move it in a subfolder starting
+with the same name:
+
+a.dat -> a/a.dat
+5776.dat -> 5/577a.dat
+s/333.dat -> s/s/333.dat
+48/1033.dat -> 4/48/1033.dat
+
+If you decide not to subdivide folders, you must pass the option
+dontUseSubfolders:true when creating the builder. 

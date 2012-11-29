@@ -1,0 +1,10 @@
+syntax: glob
+*.orig
+*~
+*.~*
+*.hg
+~*.html
+parts/*/*
+*.bak
+syntax: regexp
+.*\#.*\#$
