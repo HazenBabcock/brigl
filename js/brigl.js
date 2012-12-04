@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+		Revision 4:
+		- Colored lines
 
 		Revision 3:
 		- Better step support
@@ -33,7 +35,7 @@
 		- Default color now 16.
 		
 */
-var BRIGL = BRIGL || { REVISION: '2' };
+var BRIGL = BRIGL || { REVISION: '3' };
 
 BRIGL.log = function(msg)
 {
@@ -57,9 +59,10 @@ BRIGL.MeshFiller = function ( ) {
 	this.verticesMap = {}; // vertices hashmap, for fast access. We store the index of verticeArray
 	this.verticesArray = []; // for indexing.
 	this.faces = [];
-	this.lines = []; // contain vertices for line geometry
+	this.lines = {}; // dictionary color:array, contain vertices for line geometry, separated by color
 	this.edgeMap = {};	
 	this.wantsLines = false; // are we interested in reading lines (type2) informations?
+	this.blackLines = false; // lines all black ?
 	this.inverting = false; // are we currently inverting?
 	this.precisionPoints = 4; // number of decimal points, eg. 4 for epsilon of 0.0001
 	this.precision = Math.pow( 10, this.precisionPoints );
@@ -113,10 +116,13 @@ BRIGL.MeshFiller.prototype = {
 			this.faces.push(fa);
 						
 	},
-	addLine:function(v1, v2)
+	addLine:function(v1, v2, color)
 	{
-		this.lines.push(v1);
-		this.lines.push(v2);
+		if(this.blackLines) color = 0; // if wants all black, just use always 0 as color
+		var arr = this.lines[color];
+		if(!arr) { arr = []; this.lines[color] = arr; }
+		arr.push(v1);
+		arr.push(v2);
 	},
 	addCondLine:function(v1, v2)
 	{
@@ -197,6 +203,17 @@ BRIGL.MeshFiller.prototype = {
 					f.vertexNormals.forEach(function (v){v.normalize();});
 				}
 	},
+	buildLineGeometry: function(lineVertices, material, offset, dontCenter)
+	{
+		var geometryLines = new THREE.Geometry();
+		geometryLines.vertices = lineVertices;
+		// apply the same offset to geometryLines, thanks Three.js for returning it :P
+		if(!dontCenter)geometryLines.vertices.forEach(function(v){v.addSelf(offset);});
+	
+		// var lineMat = new THREE.LineBasicMaterial({linewidth:3.0, color : 0x000000});
+		var obj3dLines = new THREE.Line( geometryLines, material, THREE.LinePieces );
+		return obj3dLines;
+	},
 	partToMesh: function(partSpec, options)
 	{
 			var drawLines = options.drawLines ? options.drawLines : false;
@@ -204,12 +221,14 @@ BRIGL.MeshFiller.prototype = {
 			var dontCenter = options.dontCenter ? options.dontCenter : false;
 			var centerOffset = options.centerOffset ? options.centerOffset : undefined;
 			var dontSmooth = options.dontSmooth ? options.dontSmooth : undefined;
+			var blackLines = options.blackLines ? options.blackLines : false;
 			
 			var geometrySolid = new THREE.Geometry();
-			var geometryLines = drawLines ? new THREE.Geometry() : undefined;
+			
 			var transform = new THREE.Matrix4();
 			
 			this.wantsLines = drawLines;
+			this.blackLines = blackLines;
 					
 			partSpec.fillMesh(transform, 16, this, stepLimit);
 
@@ -243,13 +262,21 @@ BRIGL.MeshFiller.prototype = {
 			var obj3d = new THREE.Mesh( geometrySolid, mat );
 			
 			if(drawLines){
-				geometryLines.vertices = this.lines;
-				// apply the same offset to geometryLines, thanks Three.js for returning it :P
-				if(!dontCenter)geometryLines.vertices.forEach(function(v){v.addSelf(offset);});
-
-				var lineMat = new THREE.LineBasicMaterial({linewidth:3.0, color : 0x000000});
-				var obj3dLines = new THREE.Line( geometryLines, lineMat, THREE.LinePieces );
-				obj3d.add(obj3dLines);
+				if(this.blackLines)
+				{
+					var obj3dLines = this.buildLineGeometry(this.lines[0], new THREE.LineBasicMaterial({linewidth:3.0, color : 0x000000}), offset, dontCenter);
+					obj3d.add(obj3dLines);
+				}
+				else
+				{
+					var materials = BRIGL_MATERIALS_EDGES();
+					Object.keys( this.lines ).map((function( colKey ) {
+							var material = materials[BRIGL_MATERIALS_MAPPING[colKey]];
+							var obj3dLines = this.buildLineGeometry(this.lines[colKey], material, offset, dontCenter);
+							obj3d.add(obj3dLines);
+						
+					}).bind(this));
+				}
 			}
 			
 			// add some data to remember it.
@@ -413,7 +440,7 @@ BRIGL.LineSpec.prototype.fillMesh = function (transform, currentColor, meshFille
 	{
 			if(!meshFiller.wantsLines) return; // not interested
 			var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
-			meshFiller.addLine(transform.multiplyVector3(this.one.clone()),transform.multiplyVector3(this.two.clone()));
+			meshFiller.addLine(transform.multiplyVector3(this.one.clone()),transform.multiplyVector3(this.two.clone()), c);
 	};
 	
 // This class represent lines of type 5, conditional lines
