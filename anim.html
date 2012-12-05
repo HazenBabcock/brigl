@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+        <title>Beta step example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+                body { background-color: #ccccff;       margin: 0px; font-family: Monospace; font-weight: bold; }
+                #container  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; position:relative; top:0px; left:0px; }
+        </style>
+</head>
+
+<script src="js/three.min.js"></script>
+<script src="js/prototype.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/brigl_materials.js"></script>
+<script src="js/brigl.js"></script>
+<script src="js/tween.min.js"></script>
+<script>
+var step = 0;
+var totStep = 0;
+var builder;
+var cont;
+var offset;
+var obj3d;
+
+function updateStepDisplay()
+{
+	document.getElementById("x").textContent = step+"/"+totStep;
+}
+
+function init() 
+{
+  if ( ! Detector.webgl ) { alert("no webgl"); return; }
+  
+  // capture and show log
+        BRIGL.log = function(msg){document.getElementById("logarea").innerText = msg;};
+        
+        // create the builder object to obtain the models
+        builder = new BRIGL.Builder("parts/");
+        
+        // load a model..
+        builder.loadModelByName("modelViper.ldr", {}, function(mesh)
+        {
+        	obj3d = mesh;
+          cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
+          cont.render();
+        });
+}
+
+function animate() {
+
+	if(	TWEEN.update() ) requestAnimationFrame( animate )
+
+}
+
+function clicked()
+{
+	//var position = { x : 0, y: 0, z:0 };
+	var target = new THREE.Vector3(Math.random()*60-30,Math.random()*60-30,Math.random()*60-30);
+	var tween = new TWEEN.Tween(obj3d.position).to(target, 500);
+	tween.onUpdate( function () {
+			//obj3d.position.x = position.x;
+			//obj3d.position.y = position.y;
+			cont.render();
+
+	} ); 
+	tween.easing(TWEEN.Easing.Cubic.InOut);
+	tween.start();
+	animate();
+}
+
+</script>
+<body onload="init();">
+        <p id="logarea">Initializing...</p>
+        <div id="container">
+        </div>
+<input type="button" onclick="clicked();" value="anim" />
+</body>
+</html>
