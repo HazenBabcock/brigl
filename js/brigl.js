@@ -52,7 +52,15 @@ if (typeof String.prototype.startsWith != 'function') {
     return this.slice(0, str.length) == str;
   };
 }
-
+  function xclone(obj) {
+   var target = {};
+   for (var i in obj) {
+    if (obj.hasOwnProperty(i)) {
+     target[i] = obj[i];
+    }
+   }
+   return target;
+  }
 // an object used to build up the geometry when we have all pieces
 BRIGL.MeshFiller = function ( ) {
 	// constructor
@@ -66,6 +74,8 @@ BRIGL.MeshFiller = function ( ) {
 	this.inverting = false; // are we currently inverting?
 	this.precisionPoints = 4; // number of decimal points, eg. 4 for epsilon of 0.0001
 	this.precision = Math.pow( 10, this.precisionPoints );
+	this.animatedMesh = {}; // contains a map name:Mesh with animable subparts
+	this.options = undefined; // store options
 };
 BRIGL.MeshFiller.prototype = {
 	constructor: BRIGL.MeshFiller,
@@ -216,6 +226,7 @@ BRIGL.MeshFiller.prototype = {
 	},
 	partToMesh: function(partSpec, options)
 	{
+			this.options = options;
 			var drawLines = options.drawLines ? options.drawLines : false;
 			var stepLimit = options.stepLimit ? options.stepLimit : -1;
 			var dontCenter = options.dontCenter ? options.dontCenter : false;
@@ -225,7 +236,7 @@ BRIGL.MeshFiller.prototype = {
 			
 			var geometrySolid = new THREE.Geometry();
 			
-			var transform = new THREE.Matrix4();
+			var transform = options.startingMatrix ? options.startingMatrix : new THREE.Matrix4();
 			
 			this.wantsLines = drawLines;
 			this.blackLines = blackLines;
@@ -279,6 +290,11 @@ BRIGL.MeshFiller.prototype = {
 				}
 			}
 			
+			//add submesh for animations
+			Object.keys( this.animatedMesh ).map((function( key ) {
+				obj3d.add(this.animatedMesh[key]);
+			}).bind(this));
+			
 			// add some data to remember it.
 			var brigl = {
 					part: partSpec,
@@ -323,6 +339,14 @@ BRIGL.CommentSpec.prototype = {
 				return this.vals[3] === "CCW";
 		}
 		return true;		
+	},
+	isAnimated: function()
+	{
+		return ( (this.vals.length>=2) && (this.vals[1] === "SIMPLEANIM") && (this.vals[2] === "ANIMATED") );
+	},
+	animatedName: function()
+	{
+		return this.vals[3];
 	},
 	isInvertNext: function()
 	{
@@ -396,10 +420,13 @@ BRIGL.PartSpec.prototype = {
 };
 
 // This class represent lines of type 1, subparts
-BRIGL.SubPartSpec = function ( vals, inverted ) {
+BRIGL.SubPartSpec = function ( vals, inverted, animated, animatedName ) {
 	// constructor
 	this.color = parseInt(vals[1]);
 	this.inverted = inverted;
+	this.animated = animated;
+	this.animatedName = animatedName;
+	if(animated) alert("animated part "+animatedName);
 	this.subpartName = vals.slice(14).join(" ").toLowerCase(); // join laste elements after 14^, work only if user use single space delimiter..
 	this.subpartSpec = undefined;
 	this.matrix = new THREE.Matrix4(
@@ -421,7 +448,25 @@ BRIGL.SubPartSpec.prototype = {
 			nt.multiply(transform, this.matrix);
 			var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
 			
-			this.subpartSpec.fillMesh(nt, c, meshFiller);
+			if(this.animated)
+			{
+				// create a subfiller and a Mesh for this branch
+				var subFiller = new BRIGL.MeshFiller();
+				var opt2 = xclone(this.options); // use same options...
+				opt2.dontCenter = true; // ...except don't center
+				opt2.startingMatrix = nt; // ...and use starting matrix for transform
+				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2); // create submesh
+				meshFiller.animatedMesh[this.animatedName] = subMesh; // add submesh to parent filler
+				// also add all submesh animatedMesh (so the first one has all the mappings)
+				/*Object.keys( subFiller.animatedMesh.edgeMap ).map((function( key ) {
+					meshFiller.animatedMesh[key] = subFiller.animatedMesh[key];
+   			}*/
+				
+			}
+			else
+			{
+				this.subpartSpec.fillMesh(nt, c, meshFiller);
+			}
 			
 			if(this.inverted) meshFiller.inverting = !meshFiller.inverting; 
 	}
@@ -610,6 +655,8 @@ BRIGL.Builder.prototype = {
 		// parses some text and build a PartSpec fully populated with BrickSpec children
 				
 		var inverted = false; 	// next should be inverted?
+		var animated = false;		// next should be animated?
+		var animatedName = undefined; //valid only if animated
 		var ccw = true;					// dealing with ccw or cw ?
 		var certified = false;  // certified BFC ?
 		
@@ -634,6 +681,11 @@ BRIGL.Builder.prototype = {
 					{
 							ccw = true;
 					} 
+					else if(cs.isAnimated())
+					{
+							animated = true;
+							animatedName = cs.animatedName();
+					} 
 					else if(cs.isBfcCw())
 					{
 							ccw = false;
@@ -641,8 +693,10 @@ BRIGL.Builder.prototype = {
 				}
 				else if(tokens[0] === '1') 
 				{
-					partSpec.addLine(new BRIGL.SubPartSpec(tokens, inverted));
+					partSpec.addLine(new BRIGL.SubPartSpec(tokens, inverted, animated, animatedName));
 					inverted = false;
+					animated = false;
+					animatedName = undefined;
 				}
 				else if(tokens[0] === '2') 
 				{
