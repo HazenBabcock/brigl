@@ -52,15 +52,13 @@ if (typeof String.prototype.startsWith != 'function') {
     return this.slice(0, str.length) == str;
   };
 }
-  function xclone(obj) {
+  function xclone(xxx) {
    var target = {};
-   for (var i in obj) {
-    if (obj.hasOwnProperty(i)) {
-     target[i] = obj[i];
-    }
-   }
+   Object.keys( xxx ).map(function( kkk ) {
+   	target[kkk] = xxx[kkk];
+   });
    return target;
-  }
+  };
 // an object used to build up the geometry when we have all pieces
 BRIGL.MeshFiller = function ( ) {
 	// constructor
@@ -271,6 +269,7 @@ BRIGL.MeshFiller.prototype = {
 			
 			var mat = new THREE.MeshFaceMaterial(BRIGL_MATERIALS());  
 			var obj3d = new THREE.Mesh( geometrySolid, mat );
+			obj3d.useQuaternion = true;
 			
 			if(drawLines){
 				if(this.blackLines)
@@ -298,7 +297,8 @@ BRIGL.MeshFiller.prototype = {
 			// add some data to remember it.
 			var brigl = {
 					part: partSpec,
-					offset: offset					
+					offset: offset,
+					animatedMesh: this.animatedMesh
 			};
 			
 			obj3d.brigl = brigl;
@@ -426,7 +426,6 @@ BRIGL.SubPartSpec = function ( vals, inverted, animated, animatedName ) {
 	this.inverted = inverted;
 	this.animated = animated;
 	this.animatedName = animatedName;
-	if(animated) alert("animated part "+animatedName);
 	this.subpartName = vals.slice(14).join(" ").toLowerCase(); // join laste elements after 14^, work only if user use single space delimiter..
 	this.subpartSpec = undefined;
 	this.matrix = new THREE.Matrix4(
@@ -450,12 +449,16 @@ BRIGL.SubPartSpec.prototype = {
 			
 			if(this.animated)
 			{
+				var subPartPos = nt.getPosition();
+				var subPartPosNegated = subPartPos.clone().negate();
 				// create a subfiller and a Mesh for this branch
 				var subFiller = new BRIGL.MeshFiller();
-				var opt2 = xclone(this.options); // use same options...
+				var opt2 = xclone(meshFiller.options); // use same options...
 				opt2.dontCenter = true; // ...except don't center
-				opt2.startingMatrix = nt; // ...and use starting matrix for transform
+				opt2.startingMatrix = this.matrix.clone().translate(subPartPosNegated); // ...and use this part matrix as starting matrix for transform
 				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2); // create submesh
+				subMesh.position.copy(subPartPos);
+				subMesh.updateMatrix();
 				meshFiller.animatedMesh[this.animatedName] = subMesh; // add submesh to parent filler
 				// also add all submesh animatedMesh (so the first one has all the mappings)
 				/*Object.keys( subFiller.animatedMesh.edgeMap ).map((function( key ) {

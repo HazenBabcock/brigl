@@ -40,7 +40,7 @@ function init()
         builder = new BRIGL.Builder("parts/");
         
         // load a model..
-        builder.loadModelByName("modelbuggy.mpd", {}, function(mesh)
+        builder.loadModelByName("modelHoverpod2.mpd", {dontCenter:true, drawLines:true}, function(mesh)
         {
         	obj3d = mesh;
           cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
@@ -56,16 +56,23 @@ function animate() {
 
 function clicked()
 {
-	//var position = { x : 0, y: 0, z:0 };
-	var target = new THREE.Vector3(Math.random()*60-30,Math.random()*60-30,Math.random()*60-30);
-	var tween = new TWEEN.Tween(obj3d.position).to(target, 500);
+	var position = { v: 0.0 };
+	var target = { v: Math.PI/2 };
+	
+	var qStart = new THREE.Quaternion();
+	qStart.copy(obj3d.brigl.animatedMesh.top.quaternion);
+	
+	var tween = new TWEEN.Tween(position).to(target, 500);
 	tween.onUpdate( function () {
-			//obj3d.position.x = position.x;
-			//obj3d.position.y = position.y;
+			var qMult = new THREE.Quaternion();
+			qMult.setFromAxisAngle(new THREE.Vector3(1,0,0), position.v);
+			obj3d.brigl.animatedMesh.top.quaternion.multiply(qStart, qMult);
+			
+			obj3d.brigl.animatedMesh.top.updateMatrix();	
 			cont.render();
 
 	} ); 
-	tween.easing(TWEEN.Easing.Cubic.InOut);
+	tween.easing(TWEEN.Easing.Elastic.Out);
 	tween.start();
 	animate();
 }
