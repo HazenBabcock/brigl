@@ -19,7 +19,8 @@
 
 		Revision 4:
 		- Colored lines
-		TODO the submodel restart with 16 color (see PartToMesh). use option to continue with last color in parent model
+		- First test for animations
+		- Various fixings
 
 		Revision 3:
 		- Better step support
@@ -34,6 +35,11 @@
 		- Added crude line handling (no conditionals)
 		- Added experimental step support
 		- Default color now 16.
+		
+		
+	TODO:
+		- the submodel restart with 16 color (see PartToMesh). use option to continue with last color in parent model
+		- model centering broken with animations, redo from start
 		
 */
 var BRIGL = BRIGL || { REVISION: '3' };
