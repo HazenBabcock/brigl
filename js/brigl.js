@@ -19,6 +19,7 @@
 
 		Revision 4:
 		- Colored lines
+		TODO the submodel restart with 16 color (see PartToMesh). use option to continue with last color in parent model
 
 		Revision 3:
 		- Better step support
@@ -270,7 +271,7 @@ BRIGL.MeshFiller.prototype = {
 			var mat = new THREE.MeshFaceMaterial(BRIGL_MATERIALS());  
 			var obj3d = new THREE.Mesh( geometrySolid, mat );
 			obj3d.useQuaternion = true;
-			
+			//obj3d.quaternion = new THREE.Quaternion();
 			if(drawLines){
 				if(this.blackLines)
 				{
@@ -455,10 +456,12 @@ BRIGL.SubPartSpec.prototype = {
 				var subFiller = new BRIGL.MeshFiller();
 				var opt2 = xclone(meshFiller.options); // use same options...
 				opt2.dontCenter = true; // ...except don't center
-				opt2.startingMatrix = this.matrix.clone().translate(subPartPosNegated); // ...and use this part matrix as starting matrix for transform
+				//opt2.startingMatrix = nt.clone(); // ...and use this part matrix as starting matrix for transform
 				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2); // create submesh
-				subMesh.position.copy(subPartPos);
-				subMesh.updateMatrix();
+				subMesh.applyMatrix(this.matrix);
+				// since i'm using quats, i have to bring rotation separately
+				subMesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().extractRotation(this.matrix));
+				//subMesh.updateMatrix();
 				meshFiller.animatedMesh[this.animatedName] = subMesh; // add submesh to parent filler
 				// also add all submesh animatedMesh (so the first one has all the mappings)
 				/*Object.keys( subFiller.animatedMesh.edgeMap ).map((function( key ) {
