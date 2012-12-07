@@ -5,8 +5,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
-                body { background-color: #ccccff;       margin: 0px; font-family: Monospace; font-weight: bold; }
-                #container  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; position:relative; top:0px; left:0px; }
+                body { background-color: #ffffff;       margin: 0px; font-family: Monospace; font-weight: bold; }
+                #container  { background-color: #ffffff; border:1px solid black; width:320px; height:200px; position:relative; top:0px; left:0px; }
         </style>
 </head>
 
@@ -62,11 +62,19 @@ function clicked3(m)
 	animation.duration = 2000;
 	animation.state = "ENABLED";
 	var def = new BRIGL.AnimationDef();
-	def.mesh = obj3d.brigl.animatedMesh.top;
+	def.mesh = obj3d.brigl.animatedMesh.ruota;
 	def.type = "ROTATE";
-	def.vector = new THREE.Vector3(1,0,0);
-	def.scalar = Math.PI/2.0;
-	def.interpolator = TWEEN.Easing.Elastic.Out; 
+	def.vector = new THREE.Vector3(0,0,1);
+	def.scalar = Math.PI*2.0;
+	def.interpolator = TWEEN.Easing.Linear.None; 
+	animation.defs.push(def);
+	
+	def = new BRIGL.AnimationDef();
+	def.mesh = obj3d.brigl.animatedMesh.top;
+	def.type = "TRANSLATE";
+	def.vector = new THREE.Vector3(00,0,-100);
+	def.scalar = 0.0;
+	def.interpolator = TWEEN.Easing.Cubic.Out; 
 	animation.defs.push(def);
 	
 	animation.start(cont);

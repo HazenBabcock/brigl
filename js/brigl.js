@@ -102,7 +102,7 @@ BRIGL.AnimationDef.prototype = {
 					
 					
 					return (function (value) {
-							var vDelta = new THREE.Vector();
+							var vDelta = new THREE.Vector3();
 							vDelta.copy(this.vector);
 							vDelta.multiplyScalar( this.interpolator( value ));
 							
@@ -161,6 +161,7 @@ BRIGL.MeshFiller = function ( ) {
 	this.precisionPoints = 4; // number of decimal points, eg. 4 for epsilon of 0.0001
 	this.precision = Math.pow( 10, this.precisionPoints );
 	this.animatedMesh = {}; // contains a map name:Mesh with animable subparts
+	this.animations = {};   // contains a map name:Animations with all animations
 	this.options = undefined; // store options
 };
 BRIGL.MeshFiller.prototype = {
@@ -319,6 +320,7 @@ BRIGL.MeshFiller.prototype = {
 			var centerOffset = options.centerOffset ? options.centerOffset : undefined;
 			var dontSmooth = options.dontSmooth ? options.dontSmooth : undefined;
 			var blackLines = options.blackLines ? options.blackLines : false;
+			var startColor = options.startColor ? options.startColor : 16;
 			
 			var geometrySolid = new THREE.Geometry();
 			
@@ -327,7 +329,7 @@ BRIGL.MeshFiller.prototype = {
 			this.wantsLines = drawLines;
 			this.blackLines = blackLines;
 					
-			partSpec.fillMesh(transform, 16, this, stepLimit);
+			partSpec.fillMesh(transform, startColor, this, stepLimit);
 
 			geometrySolid.vertices = this.verticesArray;
 			geometrySolid.faces = this.faces;
@@ -457,6 +459,16 @@ BRIGL.CommentSpec.prototype = {
 	},
 	fillMesh: function (transform, currentColor, meshFiller)
 	{
+		// if it is an animation definition, parse and add it
+		if ((this.vals[1] === "SIMPLEANIM") && (this.vals[2] === "ANIMATION"))
+		
+		var animation = new BRIGL.Animation();
+		animation.name = this.vals[3];
+		animation.duration = parseInt(this.vals[4]);
+		animation.state = this.vals[5];
+		
+		
+		meshFiller.animations.push(animation);
 	}
 };
 
@@ -546,7 +558,7 @@ BRIGL.SubPartSpec.prototype = {
 				var subFiller = new BRIGL.MeshFiller();
 				var opt2 = xclone(meshFiller.options); // use same options...
 				opt2.dontCenter = true; // ...except don't center
-				//opt2.startingMatrix = nt.clone(); // ...and use this part matrix as starting matrix for transform
+				opt2.startColor = c;
 				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2); // create submesh
 				subMesh.applyMatrix(this.matrix);
 				// since i'm using quats, i have to bring rotation separately
@@ -556,6 +568,10 @@ BRIGL.SubPartSpec.prototype = {
 				// also add all submesh animatedMesh (so the first one has all the mappings)
 				Object.keys( subFiller.animatedMesh ).map(function( key ) {
 					meshFiller.animatedMesh[key] = subFiller.animatedMesh[key];
+   			});
+   			// same for animations
+				Object.keys( subFiller.animations ).map(function( key ) {
+					meshFiller.animations[key] = subFiller.animations[key];
    			});
 				
 			}
