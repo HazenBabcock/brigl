@@ -120,6 +120,8 @@ BRIGL.Animation = function()
 		this.duration = 0;  // milliseconds
 		this.state = "ENABLED"; // enabled, disabled, visible
 		this.defs = [];  // definitions
+		this.toggle = []; // other animations to enable/disable
+		this.chain = []; // other animations to chain
 };  
 BRIGL.Animation.prototype = {
 	constructor: BRIGL.Animation,
@@ -460,15 +462,36 @@ BRIGL.CommentSpec.prototype = {
 	fillMesh: function (transform, currentColor, meshFiller)
 	{
 		// if it is an animation definition, parse and add it
-		if ((this.vals[1] === "SIMPLEANIM") && (this.vals[2] === "ANIMATION"))
+		if ((this.vals.length>3) && (this.vals[1] === "SIMPLEANIM") && (this.vals[2] === "ANIMATION")){
 		
-		var animation = new BRIGL.Animation();
-		animation.name = this.vals[3];
-		animation.duration = parseInt(this.vals[4]);
-		animation.state = this.vals[5];
-		
-		
-		meshFiller.animations.push(animation);
+			var animation = new BRIGL.Animation();
+			animation.name = this.vals[3];
+			animation.duration = parseInt(this.vals[4]);
+			animation.state = this.vals[5];
+			
+			
+			for(var i = 6; i< this.vals.length; i++ )
+			{
+					if(this.vals[i] === 'DEF')
+					{
+						 //parse definitions
+						 var defs = this.vals.slice(i+1).join(' ');
+						 alert(defs);
+						 i = this.vals.length; // exit loop
+						 
+					} else if(this.vals[i] === 'TOGGLE')
+					{
+							i++;
+							animation.toggle.push(this.vals[i]);
+					} else if(this.vals[i] === 'CHAIN')
+					{
+							i++;
+							animation.chain.push(this.vals[i]);
+					}
+			}
+			
+			meshFiller.animations.push(animation);
+	}
 	}
 };
 
