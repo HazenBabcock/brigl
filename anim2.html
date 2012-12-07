@@ -54,49 +54,22 @@ function animate() {
 
 }
 
-function clicked2(m)
-{
-	
-	var position = { v: 0.0 };
-	var target = { v: Math.PI/2 };
-	
-	var qStart = new THREE.Quaternion();
-	qStart.copy(m.quaternion);
-	
-	var tween = new TWEEN.Tween(position).to(target, 700);
-	tween.onUpdate( function () {
-			var qMult = new THREE.Quaternion();
-			qMult.setFromAxisAngle(new THREE.Vector3(1,0,0), position.v);
-			m.quaternion.multiply(qStart, qMult);
-			
-			m.updateMatrix();	
-			cont.render();
-
-	} ); 
-	tween.easing(TWEEN.Easing.Elastic.Out);
-	tween.start();
-	animate();
-}
 function clicked3(m)
 {
 	
-	var position = { v: 0.0 };
-	var target = { v: -Math.PI/2 };
+	var animation = new BRIGL.Animation();
+	animation.name = "Prova";
+	animation.duration = 2000;
+	animation.state = "ENABLED";
+	var def = new BRIGL.AnimationDef();
+	def.mesh = obj3d.brigl.animatedMesh.top;
+	def.type = "ROTATE";
+	def.vector = new THREE.Vector3(1,0,0);
+	def.scalar = Math.PI/2.0;
+	def.interpolator = TWEEN.Easing.Elastic.Out; 
+	animation.defs.push(def);
 	
-	var qStart = new THREE.Quaternion();
-	qStart.copy(m.quaternion);
-	
-	var tween = new TWEEN.Tween(position).to(target, 600);
-	tween.onUpdate( function () {
-			var qMult = new THREE.Quaternion();
-			qMult.setFromAxisAngle(new THREE.Vector3(1,0,0), position.v);
-			m.quaternion.multiply(qStart, qMult);
-			
-			cont.render();
-
-	} ); 
-	tween.easing(TWEEN.Easing.Bounce.Out);
-	tween.start();
+	animation.start(cont);
 	animate();
 }
 

@@ -66,6 +66,87 @@ if (typeof String.prototype.startsWith != 'function') {
    });
    return target;
   };
+BRIGL.AnimationDef = function()
+{
+		this.type = ""; // ROTATE, TRANSLATE (maybe SCALE?)
+		this.mesh = undefined; 		// mesh to be animated
+		this.vector = undefined;	// axis for rotation or delta for translation
+		this.scalar = 0.0; 				// angle for rotations, or unused
+		this.interpolator = undefined; // interpolation function, see http://sole.github.com/tween.js/examples/03_graphs.html
+		
+};  
+BRIGL.AnimationDef.prototype = {
+	constructor: BRIGL.AnimationDef,
+	
+	getFunction: function()
+	{
+			if(this.type==='ROTATE')
+			{
+					var qStart = new THREE.Quaternion();
+					qStart.copy(this.mesh.quaternion);
+					
+					
+					return (function (value) {
+							var qMult = new THREE.Quaternion();
+							qMult.setFromAxisAngle(this.vector, this.interpolator( value ) * this.scalar);
+							this.mesh.quaternion.multiply(qStart, qMult);
+							
+							// cont.render();
+				
+					}).bind(this) ; 				
+			}
+			else if(this.type === 'TRANSLATE')
+			{
+					var vStart = new THREE.Vector3();
+					vStart.copy(this.mesh.position);
+					
+					
+					return (function (value) {
+							var vDelta = new THREE.Vector();
+							vDelta.copy(this.vector);
+							vDelta.multiplyScalar( this.interpolator( value ));
+							
+							this.mesh.position.add(vStart, vDelta);
+							this.mesh.updateMatrix();
+				
+					}).bind(this) ; 				
+				
+			}
+	}
+}  
+BRIGL.Animation = function()
+{
+		this.name = ""; // name of animation
+		this.duration = 0;  // milliseconds
+		this.state = "ENABLED"; // enabled, disabled, visible
+		this.defs = [];  // definitions
+};  
+BRIGL.Animation.prototype = {
+	constructor: BRIGL.Animation,
+	start:function(container)
+	{
+			var position = { v: 0.0 };
+			var target =   { v: 1.0 };
+			var funcs = this.defs.map(function(de){return de.getFunction()});	
+			
+			this.tween = new TWEEN.Tween(position).to(target, this.duration);
+			this.tween.onUpdate( (function () {
+						for (var i=0; i<funcs.length; i++)
+						{
+							funcs[i](position.v);
+						}
+						container.render();
+			
+				}).bind(this) ); 
+			this.tween.easing(TWEEN.Easing.Linear.None); // here i use linear, AnimationDefs will translate with their interpolator
+			this.tween.start();
+	},
+	update: function()
+	{
+			return this.tween.update();
+	}
+	
+}
 // an object used to build up the geometry when we have all pieces
 BRIGL.MeshFiller = function ( ) {
 	// constructor
@@ -73,10 +154,10 @@ BRIGL.MeshFiller = function ( ) {
 	this.verticesArray = []; // for indexing.
 	this.faces = [];
 	this.lines = {}; // dictionary color:array, contain vertices for line geometry, separated by color
-	this.edgeMap = {};	
+	this.edgeMap = {};	//used to calculate smoothing with conditional lines
 	this.wantsLines = false; // are we interested in reading lines (type2) informations?
 	this.blackLines = false; // lines all black ?
-	this.inverting = false; // are we currently inverting?
+	this.inverting = false; // are we currently inverting? (BFC INVERTNEXT)
 	this.precisionPoints = 4; // number of decimal points, eg. 4 for epsilon of 0.0001
 	this.precision = Math.pow( 10, this.precisionPoints );
 	this.animatedMesh = {}; // contains a map name:Mesh with animable subparts
@@ -298,7 +379,10 @@ BRIGL.MeshFiller.prototype = {
 			
 			//add submesh for animations
 			Object.keys( this.animatedMesh ).map((function( key ) {
-				obj3d.add(this.animatedMesh[key]);
+				if(!this.animatedMesh[key].parent) // as this contains all submodels (also subsubmodels), i check first if they aren't already added
+				{
+					obj3d.add(this.animatedMesh[key]);
+				}
 			}).bind(this));
 			
 			// add some data to remember it.
@@ -470,9 +554,9 @@ BRIGL.SubPartSpec.prototype = {
 				//subMesh.updateMatrix();
 				meshFiller.animatedMesh[this.animatedName] = subMesh; // add submesh to parent filler
 				// also add all submesh animatedMesh (so the first one has all the mappings)
-				/*Object.keys( subFiller.animatedMesh.edgeMap ).map((function( key ) {
+				Object.keys( subFiller.animatedMesh ).map(function( key ) {
 					meshFiller.animatedMesh[key] = subFiller.animatedMesh[key];
-   			}*/
+   			});
 				
 			}
 			else
