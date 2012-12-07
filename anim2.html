@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-        <title>Beta step example</title>
+        <title>Animation example</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
@@ -17,18 +17,40 @@
 <script src="js/brigl.js"></script>
 <script src="js/tween.min.js"></script>
 <script>
-var step = 0;
-var totStep = 0;
 var builder;
 var cont;
 var offset;
 var obj3d;
 
-function updateStepDisplay()
+function load(modelname)
 {
-	document.getElementById("x").textContent = step+"/"+totStep;
+		document.getElementById("buttons").innerHTML = '';
+		// load a model..
+        builder.loadModelByName(modelname, {dontCenter:true}, function(mesh)
+        {
+        	obj3d = mesh;
+			
+			if (!cont) 
+				cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
+			else
+				cont.setModel(mesh);
+			
+			Object.keys( obj3d.brigl.animations ).map(function( key ) {
+				//Create an input type dynamically.
+				var element = document.createElement("input");
+	 
+				//Assign different attributes to the element.
+				element.setAttribute("type", "button");
+				element.setAttribute("value", key);			 
+				element.onclick = function() { // Note this is a function
+					startAnim(key);
+				};
+				document.getElementById("buttons").appendChild(element);
+			});
+			
+			cont.render();
+        });
 }
-
 function init() 
 {
   if ( ! Detector.webgl ) { alert("no webgl"); return; }
@@ -38,14 +60,8 @@ function init()
         
         // create the builder object to obtain the models
         builder = new BRIGL.Builder("parts/");
+        load("modelHoverpod1.mpd");
         
-        // load a model..
-        builder.loadModelByName("modelHoverpod1.mpd", {dontCenter:true, drawLines:true}, function(mesh)
-        {
-        	obj3d = mesh;
-          cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
-          cont.render();
-        });
 }
 
 function animate() {
@@ -54,7 +70,7 @@ function animate() {
 
 }
 
-function clicked3(animName)
+function startAnim(animName)
 {
 	
 	var animation = obj3d.brigl.animations[animName];
@@ -66,10 +82,18 @@ function clicked3(animName)
 </script>
 <body onload="init();">
         <p id="logarea">Initializing...</p>
+		<select size="1" onchange="load(this.value)">
+			<option value="modelHoverpod1.mpd">Hoverpod1</option>
+			<option value="modelHoverpod2.mpd">Hoverpod2</option>
+			<option value="modelHoverpod3.mpd">Hoverpod3</option>
+			<option value="modelTest.mpd">Test anim model</option>
+			<option value="modelbuggy.mpd">Buggy</option>
+			
+		</select>
+		<span id="buttons">
+		</span>
         <div id="container">
         </div>
-<input type="button" onclick="clicked3('WingsUp');" value="Open" />
-<input type="button" onclick="clicked3('WingsDown');" value="Close" />
-<input type="button" onclick="clicked3('WingsEnd');" value="Close2" />
+
 </body>
 </html>

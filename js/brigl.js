@@ -87,7 +87,14 @@ BRIGL.AnimationDef.prototype = {
 			this.type = tok[1]; 
 			this.vector = new THREE.Vector3(parseFloat(tok[2]), parseFloat(tok[3]), parseFloat(tok[4]) );
 			this.scalar = parseFloat(tok[5]);
-			this.interpolator = TWEEN.Easing.Elastic.Out; 
+			// silly way to obtain Easing
+			var intname = tok[6].split('.');
+			var obj = TWEEN.Easing;
+			for (var i=0; i<intname.length; i++)
+			{
+				obj = obj[intname[i]];
+			}
+			this.interpolator = obj; 
 
 	},
 	getFunction: function()
@@ -617,10 +624,11 @@ BRIGL.SubPartSpec.prototype = {
 				var opt2 = xclone(meshFiller.options); // use same options...
 				opt2.dontCenter = true; // ...except don't center
 				opt2.startColor = c;
+				//opt2.startingMatrix = transform.clone();
 				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2); // create submesh
-				subMesh.applyMatrix(this.matrix);
+				subMesh.applyMatrix(nt);
 				// since i'm using quats, i have to bring rotation separately
-				subMesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().extractRotation(this.matrix));
+				subMesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().extractRotation(nt));
 				//subMesh.updateMatrix();
 				meshFiller.animatedMesh[this.animatedName] = subMesh; // add submesh to parent filler
 				// also add all submesh animatedMesh (so the first one has all the mappings)
