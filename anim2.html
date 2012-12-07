@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
                 body { background-color: #ffffff;       margin: 0px; font-family: Monospace; font-weight: bold; }
-                #container  { background-color: #ffffff; border:1px solid black; width:320px; height:200px; position:relative; top:0px; left:0px; }
+                #container  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; position:relative; top:0px; left:0px; }
         </style>
 </head>
 
@@ -40,7 +40,7 @@ function init()
         builder = new BRIGL.Builder("parts/");
         
         // load a model..
-        builder.loadModelByName("modelbuggy.mpd", {dontCenter:true, drawLines:true}, function(mesh)
+        builder.loadModelByName("modelHoverpod1.mpd", {dontCenter:true, drawLines:true}, function(mesh)
         {
         	obj3d = mesh;
           cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
@@ -54,28 +54,10 @@ function animate() {
 
 }
 
-function clicked3(m)
+function clicked3(animName)
 {
 	
-	var animation = new BRIGL.Animation();
-	animation.name = "Prova";
-	animation.duration = 2000;
-	animation.state = "ENABLED";
-	var def = new BRIGL.AnimationDef();
-	def.mesh = obj3d.brigl.animatedMesh.ruota;
-	def.type = "ROTATE";
-	def.vector = new THREE.Vector3(0,0,1);
-	def.scalar = Math.PI*2.0;
-	def.interpolator = TWEEN.Easing.Linear.None; 
-	animation.defs.push(def);
-	
-	def = new BRIGL.AnimationDef();
-	def.mesh = obj3d.brigl.animatedMesh.top;
-	def.type = "TRANSLATE";
-	def.vector = new THREE.Vector3(00,0,-100);
-	def.scalar = 0.0;
-	def.interpolator = TWEEN.Easing.Cubic.Out; 
-	animation.defs.push(def);
+	var animation = obj3d.brigl.animations[animName];
 	
 	animation.start(cont);
 	animate();
@@ -86,7 +68,8 @@ function clicked3(m)
         <p id="logarea">Initializing...</p>
         <div id="container">
         </div>
-<input type="button" onclick="clicked2(obj3d.brigl.animatedMesh.top);" value="apri" />
-<input type="button" onclick="clicked3(obj3d.brigl.animatedMesh.top);" value="chiudi" />
+<input type="button" onclick="clicked3('WingsUp');" value="Open" />
+<input type="button" onclick="clicked3('WingsDown');" value="Close" />
+<input type="button" onclick="clicked3('WingsEnd');" value="Close2" />
 </body>
 </html>

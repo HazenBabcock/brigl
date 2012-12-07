@@ -77,7 +77,19 @@ BRIGL.AnimationDef = function()
 };  
 BRIGL.AnimationDef.prototype = {
 	constructor: BRIGL.AnimationDef,
-	
+	parse: function(defstr, meshFiller)
+	{
+		  // sample: top ROTATE 0 0 1 90 Elastic.Out
+			var tok = defstr.split(' ');
+			
+			
+			this.mesh = meshFiller.animatedMesh[tok[0]];
+			this.type = tok[1]; 
+			this.vector = new THREE.Vector3(parseFloat(tok[2]), parseFloat(tok[3]), parseFloat(tok[4]) );
+			this.scalar = parseFloat(tok[5]);
+			this.interpolator = TWEEN.Easing.Elastic.Out; 
+
+	},
 	getFunction: function()
 	{
 			if(this.type==='ROTATE')
@@ -125,7 +137,7 @@ BRIGL.Animation = function()
 };  
 BRIGL.Animation.prototype = {
 	constructor: BRIGL.Animation,
-	start:function(container)
+	getTween:function(container)
 	{
 			var position = { v: 0.0 };
 			var target =   { v: 1.0 };
@@ -141,6 +153,11 @@ BRIGL.Animation.prototype = {
 			
 				}).bind(this) ); 
 			this.tween.easing(TWEEN.Easing.Linear.None); // here i use linear, AnimationDefs will translate with their interpolator
+			return this.tween;
+	},
+	start:function(container)
+	{
+			this.getTween(container); // setup tween
 			this.tween.start();
 	},
 	update: function()
@@ -393,7 +410,8 @@ BRIGL.MeshFiller.prototype = {
 			var brigl = {
 					part: partSpec,
 					offset: offset,
-					animatedMesh: this.animatedMesh
+					animatedMesh: this.animatedMesh,
+					animations: this.animations
 			};
 			
 			obj3d.brigl = brigl;
@@ -476,7 +494,24 @@ BRIGL.CommentSpec.prototype = {
 					{
 						 //parse definitions
 						 var defs = this.vals.slice(i+1).join(' ');
-						 alert(defs);
+						 // alert(defs);
+						 while(true)
+						 {
+						 		var start = defs.indexOf('[');
+						 		var end = defs.indexOf(']');
+						 		if(start==-1) break;
+						 		defstr = defs.slice(start+1, end);
+						 		//alert("singledef:"+defstr);
+						 		defs = defs.slice(end+2);
+						 		//alert("remainder: "+defs);
+						 		
+						 		var def = new BRIGL.AnimationDef();
+						 		def.parse(defstr, meshFiller);
+						 		animation.defs.push(def);
+						 		
+					   }
+						 
+						 
 						 i = this.vals.length; // exit loop
 						 
 					} else if(this.vals[i] === 'TOGGLE')
@@ -490,7 +525,7 @@ BRIGL.CommentSpec.prototype = {
 					}
 			}
 			
-			meshFiller.animations.push(animation);
+			meshFiller.animations[animation.name] = animation;
 	}
 	}
 };
