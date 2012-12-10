@@ -149,9 +149,13 @@ BRIGL.Animation.prototype = {
 	{
 			var position = { v: 0.0 };
 			var target =   { v: 1.0 };
-			var funcs = this.defs.map(function(de){return de.getFunction()});	
+			var funcs = []; 
 			
 			this.tween = new TWEEN.Tween(position).to(target, this.duration);
+			this.tween.onStart((function() { 
+				  // delay getFunction to the start of animation, else it won't work for chained anims as they pick initial values at start
+					this.defs.forEach( function(de){funcs.push(de.getFunction())} );	
+				}).bind(this));
 			this.tween.onUpdate( (function () {
 						for (var i=0; i<funcs.length; i++)
 						{
@@ -160,6 +164,7 @@ BRIGL.Animation.prototype = {
 						container.render();
 			
 				}).bind(this) ); 
+				
 			this.tween.easing(TWEEN.Easing.Linear.None); // here i use linear, AnimationDefs will translate with their interpolator
 			for (var i=0; i<this.chain.length; i++)
 			{
