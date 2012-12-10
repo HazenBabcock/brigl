@@ -141,6 +141,7 @@ BRIGL.Animation = function()
 		this.defs = [];  // definitions
 		this.toggle = []; // other animations to enable/disable
 		this.chain = []; // other animations to chain
+		this.mesh = undefined; // the mesh that contains this animation
 };  
 BRIGL.Animation.prototype = {
 	constructor: BRIGL.Animation,
@@ -160,18 +161,19 @@ BRIGL.Animation.prototype = {
 			
 				}).bind(this) ); 
 			this.tween.easing(TWEEN.Easing.Linear.None); // here i use linear, AnimationDefs will translate with their interpolator
+			for (var i=0; i<this.chain.length; i++)
+			{
+					var chainedAnim = this.mesh.brigl.animations[this.chain[i]];
+					var tw = chainedAnim.getTween(container);
+					this.tween.chain(tw);
+			}
 			return this.tween;
 	},
 	start:function(container)
 	{
 			this.getTween(container); // setup tween
 			this.tween.start();
-	},
-	update: function()
-	{
-			return this.tween.update();
 	}
-	
 }
 // an object used to build up the geometry when we have all pieces
 BRIGL.MeshFiller = function ( ) {
@@ -412,6 +414,14 @@ BRIGL.MeshFiller.prototype = {
 					obj3d.add(this.animatedMesh[key]);
 				}
 			}).bind(this));
+			
+			// add a link back to the object for animations, it will be needed later to chain them
+			Object.keys( this.animations ).map((function( key ) {
+			
+					this.animations[key].mesh = obj3d;
+			
+				}).bind(this));
+			
 			
 			// add some data to remember it.
 			var brigl = {
