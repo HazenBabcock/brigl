@@ -1,0 +1,23 @@
+Parsing
+=======
+
+Entered LDraw models are parsed line by line, and a three is constructed for the whole model, consisting of BrickSpec and children.
+At the end of each part parsing, all Subpart specs are populated, that is, the subparts are loaded.
+Loading works like this: a proxy is immediately returned, and an asyncronous request is made. The part 
+will support a list of waiters, in the form of a list callbacks, and this callbacks will be called when all subparts are ready and loaded.
+The effect of this "lazy loading" is that the method getPart() returns immediately with the part, and all loading is done in background. To 
+know when the part is ready, just add a callback with the whenReady method:
+
+	var partSpec = this.getPart(partName);
+	partSpec.whenReady(function(){});
+	
+If a part is already in the cache with all suparts loaded, it will immediately fire the "whenReady" callbacks, otherwise they will 
+be fired recursively as parts are loaded.
+This system will gracefully "merge" all requests for a part and guarantees that if the model needs X unique subparts, then at 
+most X asyncronous requests are made to the server.
+
+Model Building
+==============
+
+Rendering
+=========

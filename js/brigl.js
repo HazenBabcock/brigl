@@ -145,13 +145,14 @@ BRIGL.Animation = function()
 };  
 BRIGL.Animation.prototype = {
 	constructor: BRIGL.Animation,
-	getTween:function(container)
+	getTween:function(container, onCompleteCB)
 	{
 			var position = { v: 0.0 };
 			var target =   { v: 1.0 };
 			var funcs = []; 
 			
 			this.tween = new TWEEN.Tween(position).to(target, this.duration);
+			if(onCompleteCB) this.tween.onComplete( (function(){onCompleteCB(this);}).bind(this) );
 			this.tween.onStart((function() { 
 				  // delay getFunction to the start of animation, else it won't work for chained anims as they pick initial values at start
 					this.defs.forEach( function(de){funcs.push(de.getFunction())} );	
@@ -174,9 +175,9 @@ BRIGL.Animation.prototype = {
 			}
 			return this.tween;
 	},
-	start:function(container)
+	start:function(container, onComplete)
 	{
-			this.getTween(container); // setup tween
+			this.getTween(container, onComplete); // setup tween
 			this.tween.start();
 	}
 }

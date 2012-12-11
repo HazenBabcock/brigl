@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
                 body { background-color: #ffffff;       margin: 0px; font-family: Monospace; font-weight: bold; }
-                #container  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; position:relative; top:0px; left:0px; }
+                #container  { background-color: #ffffff; border:1px solid black; width:320px; height:200px; position:relative; top:0px; left:0px; }
         </style>
 </head>
 
@@ -22,6 +22,16 @@ var cont;
 var offset;
 var obj3d;
 
+function complete(anim)
+{
+	// toggle animations to be toggled
+	for(var i=0;i<anim.toggle.length; i++)
+	{
+		var btn = document.getElementById("btn"+anim.toggle[i]);
+		btn.disabled = !btn.disabled;
+	}
+}
+
 function load(modelname)
 {
 		document.getElementById("buttons").innerHTML = '';
@@ -36,16 +46,22 @@ function load(modelname)
 				cont.setModel(mesh);
 			
 			Object.keys( obj3d.brigl.animations ).map(function( key ) {
-				//Create an input type dynamically.
-				var element = document.createElement("input");
-	 
-				//Assign different attributes to the element.
-				element.setAttribute("type", "button");
-				element.setAttribute("value", key);			 
-				element.onclick = function() { // Note this is a function
-					startAnim(key);
-				};
-				document.getElementById("buttons").appendChild(element);
+			  var animation = obj3d.brigl.animations[key];
+			  if(animation.state!='HIDDEN') // no button for hidden animations
+			  {
+					//Create an input type dynamically.
+					var element = document.createElement("input");
+		 
+					//Assign different attributes to the element.
+					element.setAttribute("id", "btn"+key);
+					element.setAttribute("type", "button");
+					element.setAttribute("value", key);			 
+					element.onclick = function() { // Note this is a function
+						startAnim(key);
+					};
+					if (animation.state === 'DISABLED') element.setAttribute("disabled","true");
+					document.getElementById("buttons").appendChild(element);
+				}
 			});
 			
 			cont.render();
@@ -75,7 +91,7 @@ function startAnim(animName)
 	
 	var animation = obj3d.brigl.animations[animName];
 	
-	animation.start(cont);
+	animation.start(cont, complete);
 	animate();
 }
 
