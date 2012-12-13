@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-        <title>Beta step example</title>
+        <title>Animation example</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <style>
-                body { background-color: #ccccff;       margin: 0px; font-family: Monospace; font-weight: bold; }
+                body { background-color: #ffffff;       margin: 0px; font-family: Monospace; font-weight: bold; }
                 #container  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; position:relative; top:0px; left:0px; }
         </style>
 </head>
@@ -17,18 +17,58 @@
 <script src="js/brigl.js"></script>
 <script src="js/tween.min.js"></script>
 <script>
-var step = 0;
-var totStep = 0;
 var builder;
 var cont;
 var offset;
 var obj3d;
 
-function updateStepDisplay()
+function complete(anim)
 {
-	document.getElementById("x").textContent = step+"/"+totStep;
+	// toggle animations to be toggled
+	for(var i=0;i<anim.toggle.length; i++)
+	{
+		var btn = document.getElementById("btn"+anim.toggle[i]);
+		btn.disabled = !btn.disabled;
+	}
+	
+  document.getElementById("buttons").style.visibility = 'visible';
 }
 
+function load(modelname)
+{
+		document.getElementById("buttons").innerHTML = '';
+		// load a model..
+        builder.loadModelByName(modelname, {}, function(mesh)
+        {
+        	obj3d = mesh;
+			
+			if (!cont) 
+				cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
+			else
+				cont.setModel(mesh, true);
+			
+			Object.keys( obj3d.brigl.animations ).map(function( key ) {
+			  var animation = obj3d.brigl.animations[key];
+			  if(animation.state!='HIDDEN') // no button for hidden animations
+			  {
+					//Create an input type dynamically.
+					var element = document.createElement("input");
+		 
+					//Assign different attributes to the element.
+					element.setAttribute("id", "btn"+key);
+					element.setAttribute("type", "button");
+					element.setAttribute("value", key);			 
+					element.onclick = function() { // Note this is a function
+						startAnim(key);
+					};
+					if (animation.state === 'DISABLED') element.setAttribute("disabled","true");
+					document.getElementById("buttons").appendChild(element);
+				}
+			});
+			
+			cont.render();
+        });
+}
 function init() 
 {
   if ( ! Detector.webgl ) { alert("no webgl"); return; }
@@ -38,14 +78,8 @@ function init()
         
         // create the builder object to obtain the models
         builder = new BRIGL.Builder("parts/");
+        load("modelHoverpod1.mpd");
         
-        // load a model..
-        builder.loadModelByName("modelbuggy.mpd", {dontCenter:true, drawLines:true}, function(mesh)
-        {
-        	obj3d = mesh;
-          cont = new BRIGL.BriglContainer(document.getElementById("container"), mesh);     
-          cont.render();
-        });
 }
 
 function animate() {
@@ -54,58 +88,31 @@ function animate() {
 
 }
 
-function clicked2(m)
+function startAnim(animName)
 {
+	document.getElementById("buttons").style.visibility = 'hidden';
+	var animation = obj3d.brigl.animations[animName];
 	
-	var position = { v: 0.0 };
-	var target = { v: Math.PI/2 };
-	
-	var qStart = new THREE.Quaternion();
-	qStart.copy(m.quaternion);
-	
-	var tween = new TWEEN.Tween(position).to(target, 700);
-	tween.onUpdate( function () {
-			var qMult = new THREE.Quaternion();
-			qMult.setFromAxisAngle(new THREE.Vector3(1,0,0), position.v);
-			m.quaternion.multiply(qStart, qMult);
-			
-			m.updateMatrix();	
-			cont.render();
-
-	} ); 
-	tween.easing(TWEEN.Easing.Elastic.Out);
-	tween.start();
-	animate();
-}
-function clicked3(m)
-{
-	
-	var position = { v: 0.0 };
-	var target = { v: -Math.PI/2 };
-	
-	var qStart = new THREE.Quaternion();
-	qStart.copy(m.quaternion);
-	
-	var tween = new TWEEN.Tween(position).to(target, 600);
-	tween.onUpdate( function () {
-			var qMult = new THREE.Quaternion();
-			qMult.setFromAxisAngle(new THREE.Vector3(1,0,0), position.v);
-			m.quaternion.multiply(qStart, qMult);
-			
-			cont.render();
-
-	} ); 
-	tween.easing(TWEEN.Easing.Bounce.Out);
-	tween.start();
+	animation.start(cont, complete);
 	animate();
 }
 
 </script>
 <body onload="init();">
         <p id="logarea">Initializing...</p>
+		<select size="1" onchange="load(this.value)">
+			<option value="modelHoverpod1.mpd">Hoverpod1</option>
+			<option value="modelHoverpod2.mpd">Hoverpod2</option>
+			<option value="modelHoverpod3.mpd">Hoverpod3</option>
+			<option value="modelTest.mpd">Test anim model</option>
+			<option value="modelbuggy.mpd">Buggy</option>
+			<option value="modelViper.ldr">Viper</option>
+			
+		</select>
+		<span id="buttons">
+		</span>
         <div id="container">
         </div>
-<input type="button" onclick="clicked2(obj3d.brigl.animatedMesh.top);" value="apri" />
-<input type="button" onclick="clicked3(obj3d.brigl.animatedMesh.top);" value="chiudi" />
+
 </body>
 </html>

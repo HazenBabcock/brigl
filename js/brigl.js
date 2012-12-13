@@ -18,8 +18,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 		Revision 4:
+		- Animation support
 		- Colored lines
-		- First test for animations
 		- Various fixings
 
 		Revision 3:
@@ -35,11 +35,6 @@
 		- Added crude line handling (no conditionals)
 		- Added experimental step support
 		- Default color now 16.
-		
-		
-	TODO:
-		- the submodel restart with 16 color (see PartToMesh). use option to continue with last color in parent model
-		- model centering broken with animations, redo from start
 		
 */
 var BRIGL = BRIGL || { REVISION: '3' };
@@ -356,9 +351,9 @@ BRIGL.MeshFiller.prototype = {
 			var blackLines = options.blackLines ? options.blackLines : false;
 			var startColor = options.startColor ? options.startColor : 16;
 			
-			var geometrySolid = new THREE.Geometry();
-			
 			var transform = options.startingMatrix ? options.startingMatrix : new THREE.Matrix4();
+			
+			var geometrySolid = new THREE.Geometry();
 			
 			this.wantsLines = drawLines;
 			this.blackLines = blackLines;
@@ -395,6 +390,10 @@ BRIGL.MeshFiller.prototype = {
 			var obj3d = new THREE.Mesh( geometrySolid, mat );
 			obj3d.useQuaternion = true;
 			//obj3d.quaternion = new THREE.Quaternion();
+			
+			
+			
+			
 			if(drawLines){
 				if(this.blackLines)
 				{
@@ -415,7 +414,7 @@ BRIGL.MeshFiller.prototype = {
 			
 			//add submesh for animations
 			Object.keys( this.animatedMesh ).map((function( key ) {
-				if(!this.animatedMesh[key].parent) // as this contains all submodels (also subsubmodels), i check first if they aren't already added
+				if(this.animatedMesh[key].parent === undefined) // as this contains all submodels (also subsubmodels), i check first if they aren't already added
 				{
 					obj3d.add(this.animatedMesh[key]);
 				}
@@ -434,10 +433,45 @@ BRIGL.MeshFiller.prototype = {
 					part: partSpec,
 					offset: offset,
 					animatedMesh: this.animatedMesh,
-					animations: this.animations
+					animations: this.animations,
+					radius: 0.0
 			};
 			
 			obj3d.brigl = brigl;
+			
+			// new centering, needs great improvement
+			if(!dontCenter)
+			{
+				var min = new THREE.Vector3(100000.0,100000.0,100000.0);
+				var max = new THREE.Vector3(-100000.0,-100000.0,-100000.0);;
+				obj3d.traverse( function(child){
+					  if( child.brigl !== undefined)
+					  {
+						child.updateMatrixWorld(true);
+						var v = child.localToWorld(new THREE.Vector3(0,0,0));
+						var r = child.boundRadius;
+						max.x = Math.max(max.x, v.x+r);
+						max.y = Math.max(max.y, v.y+r);
+						max.z = Math.max(max.z, v.z+r);
+						min.x = Math.min(min.x, v.x-r);
+						min.y = Math.min(min.y, v.y-r);
+						min.z = Math.min(min.z, v.z-r);
+						//alert(child.brigl.part.partName+" "+v.x+","+v.y+","+v.z+"  - radius "+r);
+						}
+					}
+				);
+				var radius = Math.max(Math.abs(max.x),Math.abs(max.y),Math.abs(max.z), Math.abs(min.x), Math.abs(min.y), Math.abs(min.z));
+				//alert(radius);
+				brigl.radius = radius;
+				var d = new THREE.Vector3();
+				d.add(max, min);
+				d.multiplyScalar( -0.5 );
+				obj3d.position.addSelf(d);
+				obj3d.updateMatrix();
+				
+			}
+			// -------------
+
 			
 			return obj3d;
 	}
@@ -639,8 +673,8 @@ BRIGL.SubPartSpec.prototype = {
 				var subFiller = new BRIGL.MeshFiller();
 				var opt2 = xclone(meshFiller.options); // use same options...
 				opt2.dontCenter = true; // ...except don't center
-				opt2.startColor = c;
-				//opt2.startingMatrix = transform.clone();
+				opt2.startColor = c; // use current color as starting color
+				
 				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2); // create submesh
 				subMesh.applyMatrix(nt);
 				// since i'm using quats, i have to bring rotation separately
@@ -1098,7 +1132,7 @@ BRIGL.BriglContainer.prototype = {
 			newmesh.quaternion.setFromAxisAngle(new THREE.Vector3(1,0,-0.5).normalize(), 3.34);
 			newmesh.geometry.computeBoundingSphere();
 		  // place the camera at a right distance to gracefully fill the area
-		  var radiusDelta = newmesh.geometry.boundingSphere.radius / 180.0; // empirical
+		  var radiusDelta = newmesh.brigl.radius / 180.0; // empirical
 		  this.camera.position.set(0*radiusDelta,150*radiusDelta,400*radiusDelta);
 			this.camera.lookAt(this.scene.position);	
 		}
@@ -1111,6 +1145,16 @@ BRIGL.BriglContainer.prototype = {
 				}
 		}
 	  this.scene.add(this.mesh);
+	  
+	  /* show bounding sphere
+	  var sphere = new THREE.Mesh(
+
+						  new THREE.SphereGeometry( this.mesh.brigl.radius, 16, 16),
+						
+						  new THREE.MeshPhongMaterial( { color: 0xff0000,transparent: true, opacity: 0.3} )
+						  );
+    this.scene.add(sphere);
+	  */
 	  if(oldMesh) this.scene.remove(oldMesh);
 	  
 		this.render();
