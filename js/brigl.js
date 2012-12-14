@@ -334,7 +334,7 @@ BRIGL.MeshFiller.prototype = {
 		var geometryLines = new THREE.Geometry();
 		geometryLines.vertices = lineVertices;
 		// apply the same offset to geometryLines, thanks Three.js for returning it :P
-		if(!dontCenter)geometryLines.vertices.forEach(function(v){v.addSelf(offset);});
+		//if(!dontCenter)geometryLines.vertices.forEach(function(v){v.addSelf(offset);});
 	
 		// var lineMat = new THREE.LineBasicMaterial({linewidth:3.0, color : 0x000000});
 		var obj3dLines = new THREE.Line( geometryLines, material, THREE.LinePieces );
@@ -364,7 +364,7 @@ BRIGL.MeshFiller.prototype = {
 			geometrySolid.faces = this.faces;
 			
 			// CENTERING
-			var offset = new THREE.Vector3(0,0,0);
+			/*var offset = new THREE.Vector3(0,0,0);
 			if (!dontCenter)
 			{
 				if(centerOffset)
@@ -377,7 +377,7 @@ BRIGL.MeshFiller.prototype = {
 				{
 					offset = THREE.GeometryUtils.center(geometrySolid);
 				}
-			}
+			}*/
 			
 			geometrySolid.computeFaceNormals();
 			
@@ -431,7 +431,7 @@ BRIGL.MeshFiller.prototype = {
 			// add some data to remember it.
 			var brigl = {
 					part: partSpec,
-					offset: offset,
+					offset: new THREE.Vector3(0,0,0),
 					animatedMesh: this.animatedMesh,
 					animations: this.animations,
 					radius: 0.0
@@ -442,33 +442,41 @@ BRIGL.MeshFiller.prototype = {
 			// new centering, needs great improvement
 			if(!dontCenter)
 			{
-				var min = new THREE.Vector3(100000.0,100000.0,100000.0);
-				var max = new THREE.Vector3(-100000.0,-100000.0,-100000.0);;
-				obj3d.traverse( function(child){
-					  if( child.brigl !== undefined)
-					  {
-						child.updateMatrixWorld(true);
-						var v = child.localToWorld(new THREE.Vector3(0,0,0));
-						var r = child.boundRadius;
-						max.x = Math.max(max.x, v.x+r);
-						max.y = Math.max(max.y, v.y+r);
-						max.z = Math.max(max.z, v.z+r);
-						min.x = Math.min(min.x, v.x-r);
-						min.y = Math.min(min.y, v.y-r);
-						min.z = Math.min(min.z, v.z-r);
-						//alert(child.brigl.part.partName+" "+v.x+","+v.y+","+v.z+"  - radius "+r);
+				if(centerOffset)
+				{
+					brigl.offset.copy(centerOffset);
+					
+				}
+				else
+				{
+					var min = new THREE.Vector3(100000.0,100000.0,100000.0);
+					var max = new THREE.Vector3(-100000.0,-100000.0,-100000.0);;
+					obj3d.traverse( function(child){
+						  if( child.brigl !== undefined)
+						  {
+							child.updateMatrixWorld(true);
+							var v = child.localToWorld(new THREE.Vector3(0,0,0));
+							var r = child.boundRadius;
+							max.x = Math.max(max.x, v.x+r);
+							max.y = Math.max(max.y, v.y+r);
+							max.z = Math.max(max.z, v.z+r);
+							min.x = Math.min(min.x, v.x-r);
+							min.y = Math.min(min.y, v.y-r);
+							min.z = Math.min(min.z, v.z-r);
+							//alert(child.brigl.part.partName+" "+v.x+","+v.y+","+v.z+"  - radius "+r);
+							}
 						}
-					}
-				);
-				var radius = Math.max(Math.abs(max.x),Math.abs(max.y),Math.abs(max.z), Math.abs(min.x), Math.abs(min.y), Math.abs(min.z));
-				//alert(radius);
-				brigl.radius = radius;
-				var d = new THREE.Vector3();
-				d.add(max, min);
-				d.multiplyScalar( -0.5 );
-				obj3d.position.addSelf(d);
+					);
+					var radius = Math.max(Math.abs(max.x),Math.abs(max.y),Math.abs(max.z), Math.abs(min.x), Math.abs(min.y), Math.abs(min.z));
+					//alert(radius);
+					brigl.radius = radius;
+					brigl.offset = new THREE.Vector3();
+					brigl.offset.add(max, min);
+					brigl.offset.multiplyScalar( -0.5 );
+
+				}
+				obj3d.position.addSelf(brigl.offset);
 				obj3d.updateMatrix();
-				
 			}
 			// -------------
 
