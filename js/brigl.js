@@ -329,7 +329,7 @@ BRIGL.MeshFiller.prototype = {
 					f.vertexNormals.forEach(function (v){v.normalize();});
 				}
 	},
-	buildLineGeometry: function(lineVertices, material, offset, dontCenter)
+	buildLineGeometry: function(lineVertices, material, dontCenter)
 	{
 		var geometryLines = new THREE.Geometry();
 		geometryLines.vertices = lineVertices;
@@ -405,7 +405,7 @@ BRIGL.MeshFiller.prototype = {
 					var materials = BRIGL_MATERIALS_EDGES();
 					Object.keys( this.lines ).map((function( colKey ) {
 							var material = materials[BRIGL_MATERIALS_MAPPING[colKey]];
-							var obj3dLines = this.buildLineGeometry(this.lines[colKey], material, offset, dontCenter);
+							var obj3dLines = this.buildLineGeometry(this.lines[colKey], material, dontCenter);
 							obj3d.add(obj3dLines);
 						
 					}).bind(this));
