@@ -17,7 +17,7 @@ new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0x4b9f4a
 new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0x55a5af}),
 new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0xf2705e}),
 new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0xfc97ac}),
-new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0xf2cd37}),
+new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0xf2cd37}), 
 new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0xffffff}),
 new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0xc2dab8}),
 new THREE.MeshPhongMaterial({ specular: 0xffffff, shininess: 50, color: 0x7f7f7f}),

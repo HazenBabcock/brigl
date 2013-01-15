@@ -36,6 +36,10 @@
 		- Added experimental step support
 		- Default color now 16.
 		
+		TODO:
+		- restore centering of the model
+		- choose better colors?
+		- handle name with spaces
 */
 var BRIGL = BRIGL || { REVISION: '3' };
 
@@ -147,7 +151,7 @@ BRIGL.Animation.prototype = {
 			var funcs = []; 
 			
 			this.tween = new TWEEN.Tween(position).to(target, this.duration);
-			if(onCompleteCB) this.tween.onComplete( (function(){onCompleteCB(this);}).bind(this) );
+			
 			this.tween.onStart((function() { 
 				  // delay getFunction to the start of animation, else it won't work for chained anims as they pick initial values at start
 					this.defs.forEach( function(de){funcs.push(de.getFunction())} );	
@@ -162,11 +166,20 @@ BRIGL.Animation.prototype = {
 				}).bind(this) ); 
 				
 			this.tween.easing(TWEEN.Easing.Linear.None); // here i use linear, AnimationDefs will translate with their interpolator
-			for (var i=0; i<this.chain.length; i++)
+			
+			if(this.chain.length == 0)
 			{
-					var chainedAnim = this.mesh.brigl.animations[this.chain[i]];
-					var tw = chainedAnim.getTween(container);
-					this.tween.chain(tw);
+				// attach callback only if we are the last of a chain, else pass along to chained
+				if(onCompleteCB) this.tween.onComplete( (function(){onCompleteCB(this);}).bind(this) );
+			}
+			else
+			{
+				for (var i=0; i<this.chain.length; i++)
+				{
+						var chainedAnim = this.mesh.brigl.animations[this.chain[i]];
+						var tw = chainedAnim.getTween(container, onCompleteCB);
+						this.tween.chain(tw);
+				}
 			}
 			return this.tween;
 	},
@@ -370,12 +383,12 @@ BRIGL.MeshFiller.prototype = {
 				if(centerOffset)
 				{
 					// center around supplied offset
-					offset = centerOffset;
-					geometrySolid.vertices.forEach(function(v){v.addSelf(offset);});
+					//offset = centerOffset;
+					//geometrySolid.vertices.forEach(function(v){v.addSelf(offset);});
 				}
 				else
 				{
-					offset = THREE.GeometryUtils.center(geometrySolid);
+					//offset = THREE.GeometryUtils.center(geometrySolid);
 				}
 			}*/
 			
