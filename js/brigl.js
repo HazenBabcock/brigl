@@ -1120,7 +1120,7 @@ BRIGL.Builder.prototype = {
 // create a minimal working container for Three.js.
 // This is not necessary, you can use Mesh returned by Builder with your
 // Three.js setup.
-BRIGL.BriglContainer = function ( container, model) {
+BRIGL.BriglContainer = function ( container, model, options) {
 	// constructor
 	this.scene = 0;
 	this.camera = 0;
@@ -1130,7 +1130,7 @@ BRIGL.BriglContainer = function ( container, model) {
 	this.lastMouseX = null;
 	this.lastMouseY = null;
 	
-	this.setup();
+	this.setup(options?options:{antialias:true});
 	this.setModel(model, true);
 	this.render();
 	
@@ -1244,7 +1244,7 @@ BRIGL.BriglContainer.prototype = {
 		this.render();
 	  },
 	
-	setup: function()
+	setup: function(options)
 	{
 			// SCENE
 			this.scene = new THREE.Scene();
@@ -1256,7 +1256,7 @@ BRIGL.BriglContainer.prototype = {
 			this.camera.position.set(0,150,400);
 			this.camera.lookAt(this.scene.position);	
 			// RENDERER
-			this.renderer = new THREE.WebGLRenderer( {antialias:true} );
+			this.renderer = new THREE.WebGLRenderer( options );
 			this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 			this.container.appendChild( this.renderer.domElement );
 		

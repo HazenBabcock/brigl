@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<title>Simplest example</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body { background-color: #ccccff;	margin: 0px; font-family: Monospace; font-weight: bold; }
+		div  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; }
+	</style>
+</head>
+
+<script src="js/three.min.js"></script>
+<script src="js/prototype.js"></script>
+<script src="js/Detector.js"></script>
+<script src="js/brigl_materials.js"></script>
+<script src="js/brigl.js"></script>
+
+<script>
+
+function getQueryParams(qs) {
+    qs = qs.split("+").join(" ");
+
+    var params = {}, tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])]
+            = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
+}
+
+function init() 
+{
+  if ( ! Detector.webgl ) { alert("no webgl"); return; }
+  
+  var ps = getQueryParams(document.location.search);
+  
+  var modelName;
+  
+  if(ps.model){
+  	 modelName = ps.model;
+  } else
+  {
+  	modelName = "modelViper.ldr";
+  }
+  
+  var contOptions = {antialias:true};
+  if(ps.backgroundColor)
+  {
+  	contOptions.clearColor = parseInt(ps.backgroundColor);
+  	contOptions.clearAlpha = 1;
+  }
+  
+  
+  // capture and show log
+	BRIGL.log = function(msg){document.getElementById("logarea").textContent = msg;};
+	
+	// create the builder object to obtain the models
+	var builder = new BRIGL.Builder("parts/");
+	
+	// load a model..
+	builder.loadModelByName(modelName, {}, function(threejsMesh)
+	{
+		
+			// when done, show it in a BriglContainer
+			new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh, contOptions).render();	
+		
+	});
+}
+
+</script>
+<body onload="init();">
+	<p id="logarea">Initializing...</p>
+	<div id="container"></div>
+</body>
+</html>
