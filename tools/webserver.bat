@@ -1,0 +1,1 @@
+java -jar webserver.jar -d ../web

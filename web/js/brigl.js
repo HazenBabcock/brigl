@@ -833,6 +833,10 @@ BRIGL.Builder.prototype = {
 		} else {
 			purl = this.partsUrl+partName.charAt(0)+"/"+partName; // replicate first char to subdivide in more folders
 		}
+		this.asyncReqUrl(purl, callback);
+	},
+	asyncReqUrl: function(purl, callback)
+	{
 		var purl = purl.replace(/\\/gi,"/");
 		this.asyncnum++;
 		new Ajax.Request(purl, {
@@ -881,6 +885,23 @@ BRIGL.Builder.prototype = {
 				this.loadModelByName(partName, options, callback);
 		}).bind(this)
 		);
+	},
+		
+	// Loads a model from an url. It must be on the same server or the server/browser must allow crossorigin fetch
+	loadModelByUrl: function (purl, options, callback) {
+
+		BRIGL.log("Parsing "+purl+"...");
+		
+		this.asyncReqUrl(purl, (function(docContent)
+		{
+					BRIGL.log("File downloaded.");
+					this.loadModelByData("UrlLoaded.ldr", docContent, options, callback);
+		}).bind(this)
+			
+		);
+		
+		
+		
 	},
 	
 
