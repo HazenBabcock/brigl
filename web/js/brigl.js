@@ -46,18 +46,18 @@ var BRIGL = BRIGL || { REVISION: '3' };
 BRIGL.log = function(msg)
 {
 	console.info(msg);
-}
+};
 
 if (typeof String.prototype.trim != 'function') {
   String.prototype.trim = function (){
     return this.replace( /^\s+|\s+$/g, '' );
   };
-}
+};
 if (typeof String.prototype.startsWith != 'function') {
   String.prototype.startsWith = function (str){
     return this.slice(0, str.length) == str;
   };
-}
+};
   function xclone(xxx) {
    var target = {};
    Object.keys( xxx ).map(function( kkk ) {
@@ -131,7 +131,7 @@ BRIGL.AnimationDef.prototype = {
 				
 			}
 	}
-}  
+};  
 BRIGL.Animation = function()
 {
 		this.name = ""; // name of animation
@@ -188,7 +188,7 @@ BRIGL.Animation.prototype = {
 			this.getTween(container, onComplete); // setup tween
 			this.tween.start();
 	}
-}
+};
 // an object used to build up the geometry when we have all pieces
 BRIGL.MeshFiller = function ( ) {
 	// constructor
@@ -799,7 +799,7 @@ BRIGL.QuadSpec.prototype.fillMesh= function (transform, currentColor, meshFiller
 				transform.multiplyVector3(this.three.clone()),
 				transform.multiplyVector3(this.four.clone())
 			);
-	}
+	};
 
 BRIGL.Builder = function (partsUrl, options ) {
 	// constructor
@@ -1086,7 +1086,7 @@ BRIGL.Builder.prototype = {
 					{
 							// when async return, parse part
 							this.parsePart(p, txt);
-					}).bind(this))
+					}).bind(this));
 					
 					return p;
 			}
@@ -1259,7 +1259,7 @@ BRIGL.BriglContainer.prototype = {
 			this.mesh.updateMatrix();	
 		}
 		
-		this.lastMouseX = newX
+		this.lastMouseX = newX;
 		this.lastMouseY = newY;
 		
 		this.render();
