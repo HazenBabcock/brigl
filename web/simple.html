@@ -29,7 +29,7 @@ function init()
 	var builder = new BRIGL.Builder("parts/");
 	
 	// load a model..
-	builder.loadModelByName("modelViper.ldr", {}, function(threejsMesh)
+	builder.loadModelByName("modelViper.ldr", {dontCenter:true}, function(threejsMesh)
 	{
 		
 			// when done, show it in a BriglContainer
