@@ -78,7 +78,7 @@ function init()
         
         // create the builder object to obtain the models
         builder = new BRIGL.Builder("parts/");
-        load("modelmag.mpd");
+        load("model_animated.mpd");
         
 }
 
@@ -101,11 +101,12 @@ function startAnim(animName)
 <body onload="init();">
         <p id="logarea">Initializing...</p>
 		<select size="1" onchange="load(this.value)">
-			<option value="modelmag.mpd">MAG</option>
+			<option value="model_animated.mpd">xxx</option>
 			<option value="modelranger.mpd">Ranger</option>
 			<option value="modelHoverpod1.mpd">Hoverpod1</option>
 			<option value="modelHoverpod2.mpd">Hoverpod2</option>
 			<option value="modelHoverpod3.mpd">Hoverpod3</option>
+			<option value="modelbloblo.mpd">blo blo</option>
 			<option value="modelTest.mpd">Test anim model</option>
 			<option value="modelbuggy.mpd">Buggy</option>
 			<option value="modelViper.ldr">Viper</option>
