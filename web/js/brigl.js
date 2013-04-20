@@ -46,18 +46,18 @@ var BRIGL = BRIGL || { REVISION: '3' };
 BRIGL.log = function(msg)
 {
 	console.info(msg);
-}
+};
 
 if (typeof String.prototype.trim != 'function') {
   String.prototype.trim = function (){
     return this.replace( /^\s+|\s+$/g, '' );
   };
-}
+};
 if (typeof String.prototype.startsWith != 'function') {
   String.prototype.startsWith = function (str){
     return this.slice(0, str.length) == str;
   };
-}
+};
   function xclone(xxx) {
    var target = {};
    Object.keys( xxx ).map(function( kkk ) {
@@ -131,7 +131,7 @@ BRIGL.AnimationDef.prototype = {
 				
 			}
 	}
-}  
+};  
 BRIGL.Animation = function()
 {
 		this.name = ""; // name of animation
@@ -188,7 +188,7 @@ BRIGL.Animation.prototype = {
 			this.getTween(container, onComplete); // setup tween
 			this.tween.start();
 	}
-}
+};
 // an object used to build up the geometry when we have all pieces
 BRIGL.MeshFiller = function ( ) {
 	// constructor
@@ -353,7 +353,7 @@ BRIGL.MeshFiller.prototype = {
 		var obj3dLines = new THREE.Line( geometryLines, material, THREE.LinePieces );
 		return obj3dLines;
 	},
-	partToMesh: function(partSpec, options)
+	partToMesh: function(partSpec, options, isRoot)
 	{
 			this.options = options;
 			var drawLines = options.drawLines ? options.drawLines : false;
@@ -453,7 +453,7 @@ BRIGL.MeshFiller.prototype = {
 			obj3d.brigl = brigl;
 			
 			// new centering, needs great improvement
-			if(!dontCenter)
+			if(isRoot && (!dontCenter))
 			{
 				if(centerOffset)
 				{
@@ -696,7 +696,7 @@ BRIGL.SubPartSpec.prototype = {
 				opt2.dontCenter = true; // ...except don't center
 				opt2.startColor = c; // use current color as starting color
 				
-				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2); // create submesh
+				var subMesh = subFiller.partToMesh(this.subpartSpec, opt2, false); // create submesh
 				subMesh.applyMatrix(nt);
 				// since i'm using quats, i have to bring rotation separately
 				subMesh.quaternion.setFromRotationMatrix(new THREE.Matrix4().extractRotation(nt));
@@ -799,7 +799,7 @@ BRIGL.QuadSpec.prototype.fillMesh= function (transform, currentColor, meshFiller
 				transform.multiplyVector3(this.three.clone()),
 				transform.multiplyVector3(this.four.clone())
 			);
-	}
+	};
 
 BRIGL.Builder = function (partsUrl, options ) {
 	// constructor
@@ -863,7 +863,7 @@ BRIGL.Builder.prototype = {
 			//this.buildAndReturnMesh(partSpec, callback, options.drawLines?options.drawLines:false, options.stepLimit ? options.stepLimit : -1);
 			BRIGL.log("Generating geometry");
 			var meshFiller = new BRIGL.MeshFiller();
-			var mesh = meshFiller.partToMesh(partSpec, options);
+			var mesh = meshFiller.partToMesh(partSpec, options, true);
 
 			BRIGL.log("Model loaded successfully");
 			callback(mesh);
@@ -1086,7 +1086,7 @@ BRIGL.Builder.prototype = {
 					{
 							// when async return, parse part
 							this.parsePart(p, txt);
-					}).bind(this))
+					}).bind(this));
 					
 					return p;
 			}
@@ -1259,7 +1259,7 @@ BRIGL.BriglContainer.prototype = {
 			this.mesh.updateMatrix();	
 		}
 		
-		this.lastMouseX = newX
+		this.lastMouseX = newX;
 		this.lastMouseY = newY;
 		
 		this.render();
