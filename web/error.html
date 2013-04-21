@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<title>Rotating model</title>
+	<title>Error example</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<style>
 		body { background-color: #ccccff;	margin: 0px; font-family: Monospace; font-weight: bold; }
-		div  { background-color: #ffffff; border:1px solid black; width:400px; height:400px; }
+		div  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; }
 	</style>
 </head>
 
@@ -18,18 +18,14 @@
 
 <script>
 
-var mesh;
-var container;
-var rotationQuat;
+function handleerror(msg)
+{
+	alert("Oh no, could not load, reason: "+msg);
+}
 
 function init() 
 {
   if ( ! Detector.webgl ) { alert("no webgl"); return; }
-  
-  // this is the rotation quaternion we'll add at each frame, it's a costant
-  rotationQuat = new THREE.Quaternion();
-  rotationQuat.setFromAxisAngle(new THREE.Vector3(0,1,0), 0.01);
-  
   
   // capture and show log
 	BRIGL.log = function(msg){document.getElementById("logarea").textContent = msg;};
@@ -38,31 +34,13 @@ function init()
 	var builder = new BRIGL.Builder("parts/");
 	
 	// load a model..
-	builder.loadModelByName("94925.dat", {startColor:1}, function(threejsMesh)
+	builder.loadModelByName("inexistent.ldr", {}, function(threejsMesh)
 	{
-			
-			// when done, show it in a BriglContainer
-			container = new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh);
-			
-			// with this, you can move the camera nearest or farest. 
-			// Since single pieces usually looks too big, we go a little far
-			container.camera.position.multiplyScalar(1.5);
-			
-			mesh = threejsMesh;
-			animate();	
-			
 		
-	});
-}
-
-function animate() {
-
-	requestAnimationFrame( animate );
-	
-	mesh.quaternion.multiply(rotationQuat, mesh.quaternion);
-
-	container.render(  );
-
+			// when done, show it in a BriglContainer
+			new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh).render();	
+		
+	},handleerror);
 }
 
 </script>

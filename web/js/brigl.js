@@ -808,7 +808,7 @@ BRIGL.Builder = function (partsUrl, options ) {
 	this.partRequests = {};
 	this.partsUrl = partsUrl;
 	this.asyncnum = 0;
-	if (options.dontUseSubfolders) this.dontUseSubfolders = options.dontUseSubfolders; 
+	this.options = options; 
 };
 
 BRIGL.Builder.prototype = {
@@ -828,7 +828,7 @@ BRIGL.Builder.prototype = {
 	asyncReq: function(partName, callback)
 	{
 		var purl;
-		if(this.dontUseSubfolders) {
+		if(this.options.dontUseSubfolders) {
 		    purl = this.partsUrl+partName;
 		} else {
 			purl = this.partsUrl+partName.charAt(0)+"/"+partName; // replicate first char to subdivide in more folders
@@ -839,23 +839,55 @@ BRIGL.Builder.prototype = {
 	{
 		var purl = purl.replace(/\\/gi,"/");
 		this.asyncnum++;
-		new Ajax.Request(purl, {
-			method:'get',
-			//onCreate: function(arg) {arguments[0].request.transport.overrideMimeType('text\/plain; charset=x-user-defined') }, // force to download unprocessed, useful for eventual binary parts.
-			
-		  onSuccess: (function(transport) {
-				var res = transport.responseText;
-				this.asyncnum--;
+		
+		if(this.options.ajaxMethod=="jquery")
+		{
+			    jQuery.ajax({
+				url: purl,
+				type: "get",
+				dataType: "text",
+				error: (function(a) 
+							{ 
+								this.asyncnum--; 
+								var msg = a.status+" - "+a.responseText;
+								this.errorCallback(msg);
+							}).bind(this),
+				success: (function(strdata) {
+										var res = strdata;
+										this.asyncnum--;
+										
+										callback(res);
+								  }).bind(this)
+				});
+		
+
+		}
+		else
+		{
+			new Ajax.Request(purl, {
+				method:'get',
+				//onCreate: function(arg) {arguments[0].request.transport.overrideMimeType('text\/plain; charset=x-user-defined') }, // force to download unprocessed, useful for eventual binary parts.
 				
-				callback(res);
-		  }).bind(this),
-		  onFailure: (function() { this.asyncnum--; alert( 'Something went wrong loading: '+partName); }).bind(this)
-		});
+			  onSuccess: (function(transport) {
+					var res = transport.responseText;
+					this.asyncnum--;
+					
+					callback(res);
+			  }).bind(this),
+			  onFailure: (function(a) 
+							{ 
+								this.asyncnum--; 
+								var msg = a.status+" - "+a.responseText;
+								this.errorCallback(msg);
+							}).bind(this)
+			});
+		}
 	},
 
   // Loads a model from the part server and return the Mesh
-	loadModelByName: function (partName, options, callback) {
+	loadModelByName: function (partName, options, callback, errorCallback) {
 		BRIGL.log("Creating "+partName+"...");
+		this.errorCallback = errorCallback;
 		if(!options) options = {};
 		var partSpec = this.getPart(partName);
 		partSpec.whenReady((function()
@@ -863,8 +895,16 @@ BRIGL.Builder.prototype = {
 			//this.buildAndReturnMesh(partSpec, callback, options.drawLines?options.drawLines:false, options.stepLimit ? options.stepLimit : -1);
 			BRIGL.log("Generating geometry");
 			var meshFiller = new BRIGL.MeshFiller();
-			var mesh = meshFiller.partToMesh(partSpec, options, true);
-
+			var mesh;
+			try
+			{
+				mesh = meshFiller.partToMesh(partSpec, options, true);
+			}
+			catch(e)
+			{
+				errorCallback("Error in partToMesh "+e);
+				return;
+			}
 			BRIGL.log("Model loaded successfully");
 			callback(mesh);
 			
@@ -873,29 +913,30 @@ BRIGL.Builder.prototype = {
 	},
 	
 	// Loads a model from the data provided and return the Mesh
-	loadModelByData: function (partName, partData, options, callback) {
+	loadModelByData: function (partName, partData, options, callback, errorCallback) {
 
 		BRIGL.log("Parsing "+partName+"...");
+		this.errorCallback = errorCallback;
 		var partSpec = new BRIGL.PartSpec(partName);
 		this.partCache[partSpec.partName] = partSpec;
 		this.parsePart(partSpec, partData);
 		
 		partSpec.whenReady((function()
 		{
-				this.loadModelByName(partName, options, callback);
+				this.loadModelByName(partName, options, callback, errorCallback);
 		}).bind(this)
 		);
 	},
 		
 	// Loads a model from an url. It must be on the same server or the server/browser must allow crossorigin fetch
-	loadModelByUrl: function (purl, options, callback) {
-
+	loadModelByUrl: function (purl, options, callback, errorCallback) {
+		this.errorCallback = errorCallback;
 		BRIGL.log("Parsing "+purl+"...");
 		
 		this.asyncReqUrl(purl, (function(docContent)
 		{
 					BRIGL.log("File downloaded.");
-					this.loadModelByData("UrlLoaded.ldr", docContent, options, callback);
+					this.loadModelByData("UrlLoaded.ldr", docContent, options, callback, errorCallback);
 		}).bind(this)
 			
 		);
@@ -1270,7 +1311,7 @@ BRIGL.BriglContainer.prototype = {
 			// SCENE
 			this.scene = new THREE.Scene();
 			// CAMERA
-			var SCREEN_WIDTH = this.container.getWidth(), SCREEN_HEIGHT = this.container.getHeight();
+			var SCREEN_WIDTH = this.container.offsetWidth, SCREEN_HEIGHT = this.container.offsetHeight;
 			var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 			this.camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 			this.scene.add(this.camera);
