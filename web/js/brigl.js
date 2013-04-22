@@ -17,6 +17,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+		Revision 5:
+		- Better error handling
+		- Support for jQuery instead of prototype
+		- more options
+
 		Revision 4:
 		- Animation support
 		- Colored lines
