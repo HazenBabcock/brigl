@@ -828,6 +828,9 @@ BRIGL.Builder.prototype = {
 	asyncReq: function(partName, callback)
 	{
 		var purl;
+		if(this.options.forceLowercase) {
+				partName = partName.toLowerCase();
+		}
 		if(this.options.dontUseSubfolders) {
 		    purl = this.partsUrl+partName;
 		} else {
@@ -835,6 +838,7 @@ BRIGL.Builder.prototype = {
 		}
 		this.asyncReqUrl(purl, callback);
 	},
+	
 	asyncReqUrl: function(purl, callback)
 	{
 		var purl = purl.replace(/\\/gi,"/");

@@ -41,3 +41,30 @@ s/333.dat -> s/s/333.dat
 
 If you decide not to subdivide folders, you must pass the option
 dontUseSubfolders:true when creating the builder. 
+
+===============
+Options
+===============
+
+BRIGL.Builder options, used like this: var builder = new BRIGL.Builder("parts/", {ajaxMethod:"jquery"});
+
+- forceLowercase: forces partname to lowercase when downloading them from the server. Useful if you have inconsistencies in part name case. default false
+- dontUseSubfolders: as explained above, avoid using subfolders for parts. default false
+- ajaxMethod: choose which library to use for ajax calls. Valid values are "jquery" and "prototype". defaults "prototype"
+
+loadModelByName options (also valid for other loadModelBy.... ):
+
+- drawLines: draw edge lines. default false
+- stepLimit: read a model only up to stepLimit number of steps. Useful to show partial build. Defaults -1 (no limit)
+- dontCenter: don't calculate center of object, use model origin instead. Default false
+- centerOffset: use this vector as the center offset (the displacement of the model). Default undefined;
+- dontSmooth: avoid smoothing process. Default false
+- blackLines: draw all edge lines in black instead of their color. Default false
+- startColor: use value as starting color. Default 16
+- startingMatrix: use value as the starting transformation matrix. Default undefined
+
+BRIGL.BriglContainer options:
+
+- antialias: use antialias. default true
+- all other options supported by http://mrdoob.github.io/three.js/docs/53/#Reference/Renderers/WebGLRenderer
+
