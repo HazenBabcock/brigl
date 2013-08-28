@@ -1158,12 +1158,17 @@ BRIGL.Builder.prototype = {
 				{
 						if(currentStuff)
 						{
-								// handle it
+								// if we were already scanning a part, store it before starting the new one
 								stuff.push(currentStuff);
 						}
 						var subname = li.substring(7);
 						BRIGL.log("Found subpart "+subname);
-						currentStuff = { partName: subname, lines: [] };
+						
+						// already create and cache the partSpec so we can reference it early to load unordered multipart models
+						var subPartSpec = new BRIGL.PartSpec(subname.toLowerCase());
+						this.partCache[subname] = subPartSpec;
+						
+						currentStuff = { partName: subname, lines: [], partSpec: subPartSpec };
 				}
 				else
 				{
@@ -1189,9 +1194,9 @@ BRIGL.Builder.prototype = {
 				}
 				else
 				{
-							// this is a subpart so create a new partSpec
-							partSpec = new BRIGL.PartSpec(last.partName.toLowerCase());
-							this.partCache[partSpec.partName] = partSpec;
+							// this is a subpart, use the partSpec we created early
+							partSpec = last.partSpec; // new BRIGL.PartSpec(last.partName.toLowerCase());
+							// this.partCache[partSpec.partName] = partSpec;
 				}
 				this.parseSinglePart(partSpec, last.lines);
 		}
