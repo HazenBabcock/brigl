@@ -1429,6 +1429,7 @@ BRIGL.BriglContainer.prototype = {
 			var SCREEN_WIDTH = this.container.offsetWidth, SCREEN_HEIGHT = this.container.offsetHeight;
 			var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 			this.camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+			// this.camera = new THREE.OrthographicCamera( SCREEN_WIDTH / - 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_HEIGHT / - 2, NEAR, FAR );
 			this.scene.add(this.camera);
 			this.camera.position.set(0,150,400);
 			this.camera.lookAt(this.scene.position);	
