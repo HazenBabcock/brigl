@@ -258,6 +258,10 @@ BRIGL.MeshFiller.prototype = {
 					fa =  new THREE.Face3(idx1, idx2, idx3);
 			}
 			fa.materialIndex = BRIGL_MATERIALS_MAPPING[color];
+			if (fa.materialIndex === undefined) {
+				BRIGL.log("Unknown material "+color);
+				fa.materialIndex = BRIGL_MATERIALS_MAPPING[0];
+			}
 			this.faces.push(fa);
 						
 	},
@@ -1026,6 +1030,7 @@ BRIGL.Builder.prototype = {
 	loadModelByData: function (partName, partData, options, callback, errorCallback) {
 
 		BRIGL.log("Parsing "+partName+"...");
+		partName = partName.toLowerCase();
 		this.errorCallback = errorCallback;
 		var partSpec = new BRIGL.PartSpec(partName);
 		this.partCache[partSpec.partName] = partSpec;
@@ -1161,11 +1166,11 @@ BRIGL.Builder.prototype = {
 								// if we were already scanning a part, store it before starting the new one
 								stuff.push(currentStuff);
 						}
-						var subname = li.substring(7);
+						var subname = li.substring(7).toLowerCase();
 						BRIGL.log("Found subpart "+subname);
 						
 						// already create and cache the partSpec so we can reference it early to load unordered multipart models
-						var subPartSpec = new BRIGL.PartSpec(subname.toLowerCase());
+						var subPartSpec = new BRIGL.PartSpec(subname);
 						this.partCache[subname] = subPartSpec;
 						
 						currentStuff = { partName: subname, lines: [], partSpec: subPartSpec };
