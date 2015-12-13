@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Upload example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body { background-color: #ccccff;	margin: 0px; font-family: Monospace; font-weight: bold; }
+      div  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; }
+    </style>
+  </head>
+  
+  <script src="js/three.min.js"></script>
+  <script src="js/prototype.js"></script>
+  <script src="js/Detector.js"></script>
+  <script src="js/brigl_materials.js"></script>
+  <script src="js/brigl.js"></script>
+  
+  <script>
+    var briglContainer;
+    var contents;
+    var logarea;
+   
+    function init(){
+      if ( ! Detector.webgl ) { alert("no webgl"); return; }
+
+      contents = document.getElementById("contents")
+    
+      logarea = document.getElementById("log")
+      BRIGL.log = function(msg)
+      {
+  	logarea.innerHTML += (msg+"\n");
+      }
+    }
+
+    function handleFile(event){
+      var input = event.target;
+      logarea.innerHTML = "fubar"
+
+      var reader = new FileReader();
+      reader.onload = function(){
+        contents.innerHTML = reader.result;
+        console.log(reader.result.substring(0, 200));
+      };
+      reader.readAsText(input.files[0]);
+    
+//    var lines = document.getElementById("lines").checked;
+//    builder.loadModelByData("pastedModel.dat", document.getElementById("ta").value, {drawLines: lines}, function(ne){
+//      briglContainer.setModel(ne, true);
+//    });
+    }
+  </script>
+  
+  <body onload="init();">
+    <p>Select A File <input type="file" id="input" onchange="handleFile(event)"></p>
+    <p id="log">1234</p>
+    <p id="contents">asdf</p>
+    <div id="container"></div>
+  </body>
+</html>
