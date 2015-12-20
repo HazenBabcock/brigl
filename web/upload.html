@@ -31,20 +31,25 @@
        
        logarea = document.getElementById("log");
        BRIGL.log = function(msg){
-  	   logarea.innerHTML += (msg+"\n");
+  	   logarea.textContent = msg;
        }
    }
-   
+
+   function handleError(msg)
+   {
+       alert("Error: " + msg);
+   }
+
    function handleFile(event){
        var input = event.target;
-       logarea.innerHTML = ""
+       logarea.value = ""
        
        var reader = new FileReader();
        reader.onload = function(){
            console.log(reader.result.substring(0, 200));
-	   builder.loadModelByData("uploadedModel.dat", reader.result, {}, function(ne){
-	       briglContainer.setModel(ne, true);
-	   });
+	   builder.loadModelByData("uploadedModel.dat", reader.result, {}, function(model){
+	       briglContainer.setModel(model, true);
+	   }, handleError);
        };
        reader.readAsText(input.files[0]);       
    }
