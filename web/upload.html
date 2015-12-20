@@ -17,44 +17,42 @@
   <script src="js/brigl.js"></script>
   
   <script>
-    var briglContainer;
-    var contents;
-    var logarea;
+   var builder;
+   var briglContainer;
+   var logarea;
    
-    function init(){
-      if ( ! Detector.webgl ) { alert("no webgl"); return; }
+   function init(){
+       if ( ! Detector.webgl ) { alert("no webgl"); return; }
 
-      contents = document.getElementById("contents")
-    
-      logarea = document.getElementById("log")
-      BRIGL.log = function(msg)
-      {
-  	logarea.innerHTML += (msg+"\n");
-      }
-    }
-
-    function handleFile(event){
-      var input = event.target;
-      logarea.innerHTML = "fubar"
-
-      var reader = new FileReader();
-      reader.onload = function(){
-        contents.innerHTML = reader.result;
-        console.log(reader.result.substring(0, 200));
-      };
-      reader.readAsText(input.files[0]);
-    
-//    var lines = document.getElementById("lines").checked;
-//    builder.loadModelByData("pastedModel.dat", document.getElementById("ta").value, {drawLines: lines}, function(ne){
-//      briglContainer.setModel(ne, true);
-//    });
-    }
+       builder = new BRIGL.Builder("parts/");
+       builder.loadModelByName("modelViper.ldr", {}, function(model){
+	   briglContainer = new BRIGL.BriglContainer(document.getElementById("container"), model);	
+       } );
+       
+       logarea = document.getElementById("log");
+       BRIGL.log = function(msg){
+  	   logarea.innerHTML += (msg+"\n");
+       }
+   }
+   
+   function handleFile(event){
+       var input = event.target;
+       logarea.innerHTML = ""
+       
+       var reader = new FileReader();
+       reader.onload = function(){
+           console.log(reader.result.substring(0, 200));
+	   builder.loadModelByData("uploadedModel.dat", reader.result, {}, function(ne){
+	       briglContainer.setModel(ne, true);
+	   });
+       };
+       reader.readAsText(input.files[0]);       
+   }
   </script>
-  
+
   <body onload="init();">
     <p>Select A File <input type="file" id="input" onchange="handleFile(event)"></p>
-    <p id="log">1234</p>
-    <p id="contents">asdf</p>
+    <p id="log">No Errors</p>
     <div id="container"></div>
   </body>
 </html>
