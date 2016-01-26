@@ -59,6 +59,7 @@ if (typeof String.prototype.trim != 'function') {
         return this.replace(/^\s+|\s+$/g, '');
     };
 };
+
 if (typeof String.prototype.startsWith != 'function') {
     String.prototype.startsWith = function(str) {
         return this.slice(0, str.length) == str;
@@ -72,6 +73,8 @@ function xclone(xxx) {
     });
     return target;
 };
+
+
 BRIGL.AnimationDef = function() {
     this.type = ""; // ROTATE, TRANSLATE (maybe SCALE?)
     this.mesh = undefined; // mesh to be animated
@@ -80,6 +83,7 @@ BRIGL.AnimationDef = function() {
     this.interpolator = undefined; // interpolation function, see http://sole.github.com/tween.js/examples/03_graphs.html
 
 };
+
 BRIGL.AnimationDef.prototype = {
     constructor: BRIGL.AnimationDef,
     parse: function(defstr, meshFiller) {
@@ -132,6 +136,8 @@ BRIGL.AnimationDef.prototype = {
         }
     }
 };
+
+
 BRIGL.Animation = function() {
     this.name = ""; // name of animation
     this.duration = 0; // milliseconds
@@ -141,6 +147,7 @@ BRIGL.Animation = function() {
     this.chain = []; // other animations to chain
     this.mesh = undefined; // the mesh that contains this animation
 };
+
 BRIGL.Animation.prototype = {
     constructor: BRIGL.Animation,
     getTween: function(container, onCompleteCB) {
@@ -189,6 +196,8 @@ BRIGL.Animation.prototype = {
         this.tween.start();
     }
 };
+
+
 // an object used to build up the geometry when we have all pieces
 BRIGL.MeshFiller = function() {
     // constructor
@@ -206,6 +215,7 @@ BRIGL.MeshFiller = function() {
     this.animations = {}; // contains a map name:Animations with all animations
     this.options = undefined; // store options
 };
+
 BRIGL.MeshFiller.prototype = {
     constructor: BRIGL.MeshFiller,
     /* used for fast, order-irrelevant indexing of edges */
@@ -1189,8 +1199,11 @@ BRIGL.BriglContainer = function(container, model, options) {
     this.renderer = 0;
     this.container = container;
     this.mouseDown = 0;
+    this.numberTouches = 0;
     this.lastMouseX = null;
     this.lastMouseY = null;
+    this.lastTouchX = null;
+    this.lastTouchY = null;
 
     this.setup(options ? options : {
         antialias: true
@@ -1256,6 +1269,7 @@ BRIGL.BriglContainer.prototype = {
         event.stopPropagation();
         this.mouseDown = 0;
     },
+    
     handleMouseWheel: function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -1300,6 +1314,56 @@ BRIGL.BriglContainer.prototype = {
         this.render();
     },
 
+    handleTouchEnd: function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.numberTouches = 0;
+    },
+
+    handleTouchMove: function(event) {
+        if (this.numberTouches == 0) {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        var newX = event.touches[0].pageX;
+        var newY = event.touches[0].pageY;
+
+        var deltaX = newX - this.lastTouchX;
+        var deltaY = newY - this.lastTouchY;
+
+        if (this.numberTouches == 1) {
+            // rotation
+            var q2 = new THREE.Quaternion();
+            q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
+            var q = new THREE.Quaternion();
+            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
+
+            this.mesh.quaternion.multiply(q, this.mesh.quaternion);
+            this.mesh.quaternion.multiply(q2, this.mesh.quaternion);
+            this.mesh.updateMatrix();
+        } else if (this.numberTouches == 2) {
+            // pan
+            this.mesh.position.addSelf(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
+            this.mesh.updateMatrix();
+        }
+
+        this.lastTouchX = newX;
+        this.lastTouchY = newY;
+
+        this.render();
+    },
+
+    handleTouchStart: function(event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.numberTouches = event.touches.length;
+        this.lastTouchX = event.touches[0].pageX;
+        this.lastTouchY = event.touches[0].pageY;
+    },
+    
     setup: function(options) {
         // SCENE
         this.scene = new THREE.Scene();
@@ -1329,7 +1393,7 @@ BRIGL.BriglContainer.prototype = {
         light.position.set(0, 00, 100);
         this.scene.add(light);
 
-        //events
+        // Mouse events.
         this.container.addEventListener('mousedown', (function(event) {
             this.handleMouseDown(event);
         }).bind(this), false);
@@ -1346,6 +1410,17 @@ BRIGL.BriglContainer.prototype = {
             this.handleMouseWheel(event);
         }).bind(this), false); // firefox
 
+	// Touch events.
+        this.container.addEventListener('touchstart', (function(event) {
+            this.handleTouchStart(event);
+        }).bind(this), false);
+        this.container.addEventListener('touchend', (function(event) {
+            this.handleTouchEnd(event);
+        }).bind(this), false);
+        this.container.addEventListener('touchmove', (function(event) {
+            this.handleTouchMove(event);
+        }).bind(this), false);	
+	
     },
 
     render: function() {
