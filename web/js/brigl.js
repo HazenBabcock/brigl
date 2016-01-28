@@ -45,6 +45,13 @@
 		- restore centering of the model
 		- choose better colors?
 		- handle name with spaces
+
+
+    Added support for touch events so that BRIGL.BriglContainer
+    will work on a tablet.
+
+    2016 - Hazen Babcock
+
 */
 var BRIGL = BRIGL || {
     REVISION: '3'
