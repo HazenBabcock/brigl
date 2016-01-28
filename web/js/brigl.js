@@ -3,6 +3,7 @@
     BRIGL - A library to parse and render LDraw models with WEBGL.
 
     Copyright (C) 2012  Nicola MSX Lugato
+    Copyright (C) 2016  Hazen Babcock
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,6 +17,9 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                Revision 6:
+                - Handle touch events.
 
 		Revision 5:
 		- Better error handling
@@ -45,12 +49,6 @@
 		- restore centering of the model
 		- choose better colors?
 		- handle name with spaces
-
-
-    Added support for touch events so that BRIGL.BriglContainer
-    will work on a tablet.
-
-    2016 - Hazen Babcock
 
 */
 var BRIGL = BRIGL || {
