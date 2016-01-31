@@ -51,6 +51,7 @@
 		- handle name with spaces
 
 */
+
 var BRIGL = BRIGL || {
     REVISION: '3'
 };
@@ -976,7 +977,6 @@ BRIGL.Builder.prototype = {
 
     // Loads a model from the data provided and return the Mesh
     loadModelByData: function(partName, partData, options, callback, errorCallback) {
-
         BRIGL.log("Parsing " + partName + "...");
         partName = partName.toLowerCase();
         this.errorCallback = errorCallback;
@@ -1213,9 +1213,10 @@ BRIGL.BriglContainer = function(container, model, options) {
     this.setup(options ? options : {
         antialias: true
     });
-    this.setModel(model, true);
-    this.render();
-
+    if (model){
+	this.setModel(model, true);
+	this.render();
+    }
 };
 
 BRIGL.BriglContainer.prototype = {
