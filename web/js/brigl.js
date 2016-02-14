@@ -261,17 +261,34 @@ BRIGL.MeshFiller.prototype = {
         var idx4;
         var fa;
         if (isQuad) {
-            idx4 = this.addVertice(v3);
-            fa = new THREE.Face4(idx1, idx2, idx3, idx4);
-        } else {
+	    idx4 = this.addVertice(v3);
+
+	    var f1 = new THREE.Face3(idx1, idx2, idx3);
+	    f1.is_quad = true;
+	    f1.materialIndex = BRIGL_MATERIALS_MAPPING[color];
+            if (f1.materialIndex === undefined) {
+		BRIGL.log("Unknown material " + color);
+		f1.materialIndex = BRIGL_MATERIALS_MAPPING[0];
+            }
+	    this.faces.push(f1);
+
+	    var f2 = new THREE.Face3(idx1, idx3, idx4);
+	    f2.materialIndex = BRIGL_MATERIALS_MAPPING[color];
+            if (f2.materialIndex === undefined) {
+		BRIGL.log("Unknown material " + color);
+		f2.materialIndex = BRIGL_MATERIALS_MAPPING[0];
+            }
+	    this.faces.push(f2);
+	}
+	else {
             fa = new THREE.Face3(idx1, idx2, idx3);
-        }
-        fa.materialIndex = BRIGL_MATERIALS_MAPPING[color];
-        if (fa.materialIndex === undefined) {
-            BRIGL.log("Unknown material " + color);
-            fa.materialIndex = BRIGL_MATERIALS_MAPPING[0];
-        }
-        this.faces.push(fa);
+	    fa.materialIndex = BRIGL_MATERIALS_MAPPING[color];
+            if (fa.materialIndex === undefined) {
+		BRIGL.log("Unknown material " + color);
+		fa.materialIndex = BRIGL_MATERIALS_MAPPING[0];
+	    }
+            this.faces.push(fa);
+	}
 
     },
     addLine: function(v1, v2, color) {
@@ -300,17 +317,22 @@ BRIGL.MeshFiller.prototype = {
 
         for (var i = 0; i < geometrySolid.faces.length; i++) {
             var f = geometrySolid.faces[i];
-            var isQuad = f instanceof THREE.Face4;
-
+            //var isQuad = f instanceof THREE.Face4;
+	    var isQuad = f.is_quad;
 
             if (isQuad) {
+		i += 1;
+		var f2 = geometrySolid.faces[i];
+		
                 // set all vertex normal equals to face normal
-                f.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone(), f.normal.clone()];
+                f.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone()];
+		f2.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone()];
+		
                 // calculate keys of the four edges
                 var kab = this.edgeMapKey(f.a, f.b);
                 var kbc = this.edgeMapKey(f.c, f.b);
-                var kcd = this.edgeMapKey(f.d, f.c);
-                var kda = this.edgeMapKey(f.d, f.a);
+                var kcd = this.edgeMapKey(f2.b, f2.c);
+                var kda = this.edgeMapKey(f2.c, f2.a);
                 // see if one of the four edges of this face is a cond line
                 // if it is, we save the face and the index of the two vertices of the edge for later processing
                 if (this.edgeMap[kab]) // is this a cond line ?
@@ -334,20 +356,20 @@ BRIGL.MeshFiller.prototype = {
                 if (this.edgeMap[kcd]) // is this a cond line ?
                 {
                     // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
-                    if (!vertexGroupsToBeSmoothed[f.d]) vertexGroupsToBeSmoothed[f.d] = [];
+                    if (!vertexGroupsToBeSmoothed[f2.b]) vertexGroupsToBeSmoothed[f2.b] = [];
+                    if (!vertexGroupsToBeSmoothed[f2.c]) vertexGroupsToBeSmoothed[f2.c] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2]);
-                    vertexGroupsToBeSmoothed[f.d].push([f, 3]);
+                    vertexGroupsToBeSmoothed[f2.b].push([f2, 1]);
+                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2]);
                 }
                 if (this.edgeMap[kda]) // is this a cond line ?
                 {
                     // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
-                    if (!vertexGroupsToBeSmoothed[f.d]) vertexGroupsToBeSmoothed[f.d] = [];
+                    if (!vertexGroupsToBeSmoothed[f2.a]) vertexGroupsToBeSmoothed[f2.a] = [];
+                    if (!vertexGroupsToBeSmoothed[f2.c]) vertexGroupsToBeSmoothed[f2.c] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0]);
-                    vertexGroupsToBeSmoothed[f.d].push([f, 3]);
+                    vertexGroupsToBeSmoothed[f2.a].push([f2, 0]);
+                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2]);
                 }
             } else {
                 // set all vertex normal equals to face normal
@@ -488,36 +510,14 @@ BRIGL.MeshFiller.prototype = {
         geometrySolid.vertices = this.verticesArray;
         geometrySolid.faces = this.faces;
 
-        // CENTERING
-        /*var offset = new THREE.Vector3(0,0,0);
-        if (!dontCenter)
-        {
-        	if(centerOffset)
-        	{
-        		// center around supplied offset
-        		//offset = centerOffset;
-        		//geometrySolid.vertices.forEach(function(v){v.addSelf(offset);});
-        	}
-        	else
-        	{
-        		//offset = THREE.GeometryUtils.center(geometrySolid);
-        	}
-        }*/
-
-        geometrySolid.computeFaceNormals();
-
         // SMOOTHING
+	geometrySolid.computeFaceNormals();
         if (!dontSmooth) {
             this.smooth(geometrySolid);
         }
 
         var mat = new THREE.MeshFaceMaterial(BRIGL_MATERIALS());
         var obj3d = new THREE.Mesh(geometrySolid, mat);
-        //obj3d.useQuaternion = true;
-        //obj3d.quaternion = new THREE.Quaternion();
-
-
-
 
         if (drawLines) {
             if (this.blackLines) {
@@ -871,13 +871,18 @@ BRIGL.QuadSpec.prototype.fillMesh = function(transform, currentColor, meshFiller
     meshFiller.addFace(this.ccw, this.certified, det, c,
 		       this.one.clone().applyMatrix4(transform),
 		       this.two.clone().applyMatrix4(transform),
+		       this.three.clone().applyMatrix4(transform),
+		       this.four.clone().applyMatrix4(transform));
+    /*
+    meshFiller.addFace(this.ccw, this.certified, det, c,
+		       this.one.clone().applyMatrix4(transform),
+		       this.two.clone().applyMatrix4(transform),
 		       this.three.clone().applyMatrix4(transform));
     meshFiller.addFace(this.ccw, this.certified, det, c,
 		       this.one.clone().applyMatrix4(transform),
-		       //this.two.clone().applyMatrix4(transform),
 		       this.three.clone().applyMatrix4(transform),
 		       this.four.clone().applyMatrix4(transform));
-
+		       */
 };
 
 BRIGL.Builder = function(partsUrl, options) {
