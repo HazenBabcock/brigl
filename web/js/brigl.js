@@ -20,6 +20,7 @@
 
                 Revision 6:
                 - Handle touch events.
+		- Updated to three.js r74.
 
 		Revision 5:
 		- Better error handling
@@ -51,9 +52,10 @@
 		- handle name with spaces
 
 */
+'use strict';
 
 var BRIGL = BRIGL || {
-    REVISION: '3'
+    REVISION: '6'
 };
 
 BRIGL.log = function(msg) {
@@ -134,7 +136,7 @@ BRIGL.AnimationDef.prototype = {
                 vDelta.copy(this.vector);
                 vDelta.multiplyScalar(this.interpolator(value));
 
-                this.mesh.position.add(vStart, vDelta);
+                this.mesh.position.addVector(vStart, vDelta);
                 this.mesh.updateMatrix();
 
             }).bind(this);
@@ -428,7 +430,7 @@ BRIGL.MeshFiller.prototype = {
                 var face = block[0];
                 var vertexIdx = block[1];
 
-                smoothedVector.addSelf(face.vertexNormals[vertexIdx]);
+                smoothedVector.add(face.vertexNormals[vertexIdx]);
             }
 
             // now average (or just normalize)
@@ -511,7 +513,7 @@ BRIGL.MeshFiller.prototype = {
 
         var mat = new THREE.MeshFaceMaterial(BRIGL_MATERIALS());
         var obj3d = new THREE.Mesh(geometrySolid, mat);
-        obj3d.useQuaternion = true;
+        //obj3d.useQuaternion = true;
         //obj3d.quaternion = new THREE.Quaternion();
 
 
@@ -574,7 +576,8 @@ BRIGL.MeshFiller.prototype = {
                     if (child.brigl !== undefined) {
                         child.updateMatrixWorld(true);
                         var v = child.localToWorld(new THREE.Vector3(0, 0, 0));
-                        var r = child.boundRadius;
+			child.geometry.computeBoundingSphere();
+                        var r = child.geometry.boundingSphere.radius;
                         max.x = Math.max(max.x, v.x + r);
                         max.y = Math.max(max.y, v.y + r);
                         max.z = Math.max(max.z, v.z + r);
@@ -588,11 +591,11 @@ BRIGL.MeshFiller.prototype = {
                 //alert(radius);
                 brigl.radius = radius;
                 brigl.offset = new THREE.Vector3();
-                brigl.offset.add(max, min);
+                brigl.offset.addVectors(max, min);
                 brigl.offset.multiplyScalar(-0.5);
 
             }
-            obj3d.position.addSelf(brigl.offset);
+            obj3d.position.add(brigl.offset);
             obj3d.updateMatrix();
         }
         // -------------
@@ -748,12 +751,11 @@ BRIGL.SubPartSpec = function(vals, inverted, animated, animatedName) {
     this.animatedName = animatedName;
     this.subpartName = vals.slice(14).join(" ").toLowerCase(); // join laste elements after 14^, work only if user use single space delimiter..
     this.subpartSpec = undefined;
-    this.matrix = new THREE.Matrix4(
-        parseFloat(vals[5]), parseFloat(vals[6]), parseFloat(vals[7]), parseFloat(vals[2]),
-        parseFloat(vals[8]), parseFloat(vals[9]), parseFloat(vals[10]), parseFloat(vals[3]),
-        parseFloat(vals[11]), parseFloat(vals[12]), parseFloat(vals[13]), parseFloat(vals[4]),
-        0.0, 0.0, 0.0, 1.0
-    );
+    this.matrix = new THREE.Matrix4();
+    this.matrix.set(parseFloat(vals[5]), parseFloat(vals[6]), parseFloat(vals[7]), parseFloat(vals[2]),
+		    parseFloat(vals[8]), parseFloat(vals[9]), parseFloat(vals[10]), parseFloat(vals[3]),
+		    parseFloat(vals[11]), parseFloat(vals[12]), parseFloat(vals[13]), parseFloat(vals[4]),
+		    0.0, 0.0, 0.0, 1.0);
 };
 BRIGL.SubPartSpec.prototype = Object.create(BRIGL.BrickSpec.prototype);
 BRIGL.SubPartSpec.prototype = {
@@ -763,7 +765,7 @@ BRIGL.SubPartSpec.prototype = {
         if (this.inverted) meshFiller.inverting = !meshFiller.inverting;
 
         var nt = new THREE.Matrix4();
-        nt.multiply(transform, this.matrix);
+        nt.multiplyMatrices(transform, this.matrix);
         var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
 
         if (this.animated) {
@@ -810,7 +812,7 @@ BRIGL.LineSpec.prototype.constructor = BRIGL.LineSpec;
 BRIGL.LineSpec.prototype.fillMesh = function(transform, currentColor, meshFiller) {
     if (!meshFiller.wantsLines) return; // not interested
     var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
-    meshFiller.addLine(transform.multiplyVector3(this.one.clone()), transform.multiplyVector3(this.two.clone()), c);
+    meshFiller.addLine(this.one.clone().applyMatrix4(transform), this.two.clone().applyMatrix4(transform), c);
 };
 
 // This class represent lines of type 5, conditional lines
@@ -824,7 +826,7 @@ BRIGL.CondLineSpec.prototype = Object.create(BRIGL.BrickSpec.prototype);
 BRIGL.CondLineSpec.prototype.constructor = BRIGL.CondLineSpec;
 BRIGL.CondLineSpec.prototype.fillMesh = function(transform, currentColor, meshFiller) {
     var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
-    meshFiller.addCondLine(transform.multiplyVector3(this.one.clone()), transform.multiplyVector3(this.two.clone()));
+    meshFiller.addCondLine(this.one.clone().applyMatrix4(transform), this.two.clone().applyMatrix4(transform));
 };
 
 // This class represent lines of type 3, triangles
@@ -844,9 +846,9 @@ BRIGL.TriangleSpec.prototype.fillMesh = function(transform, currentColor, meshFi
     var det = transform.determinant(); // this is equal for all tri and quad in PartSpec, could be calculated before
     var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
     meshFiller.addFace(this.ccw, this.certified, det, c,
-        transform.multiplyVector3(this.one.clone()),
-        transform.multiplyVector3(this.two.clone()),
-        transform.multiplyVector3(this.three.clone()));
+		       this.one.clone().applyMatrix4(transform),
+		       this.two.clone().applyMatrix4(transform),
+		       this.three.clone().applyMatrix4(transform));
 };
 
 // This class represent lines of type 4, quads
@@ -867,11 +869,15 @@ BRIGL.QuadSpec.prototype.fillMesh = function(transform, currentColor, meshFiller
     var det = transform.determinant();
     var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
     meshFiller.addFace(this.ccw, this.certified, det, c,
-        transform.multiplyVector3(this.one.clone()),
-        transform.multiplyVector3(this.two.clone()),
-        transform.multiplyVector3(this.three.clone()),
-        transform.multiplyVector3(this.four.clone())
-    );
+		       this.one.clone().applyMatrix4(transform),
+		       this.two.clone().applyMatrix4(transform),
+		       this.three.clone().applyMatrix4(transform));
+    meshFiller.addFace(this.ccw, this.certified, det, c,
+		       this.one.clone().applyMatrix4(transform),
+		       //this.two.clone().applyMatrix4(transform),
+		       this.three.clone().applyMatrix4(transform),
+		       this.four.clone().applyMatrix4(transform));
+
 };
 
 BRIGL.Builder = function(partsUrl, options) {
@@ -1004,8 +1010,6 @@ BRIGL.Builder.prototype = {
 
 
     },
-
-
 
     parsePart: function(partSpec, partData) {
         // parses some text and fill the PartSpec in input
@@ -1226,10 +1230,12 @@ BRIGL.BriglContainer.prototype = {
     degToRad: function(degrees) {
         return degrees * Math.PI / 180;
     },
+    
     setModel: function(newmesh, resetView) {
+	
         var oldMesh = this.mesh;
         this.mesh = newmesh;
-        newmesh.useQuaternion = true;
+        //newmesh.useQuaternion = true;
         if (resetView) {
             newmesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, -0.5).normalize(), 3.34);
             newmesh.geometry.computeBoundingSphere();
@@ -1245,15 +1251,13 @@ BRIGL.BriglContainer.prototype = {
         }
         this.scene.add(this.mesh);
 
-        /* show bounding sphere
-	  var sphere = new THREE.Mesh(
+	/*
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry( this.mesh.brigl.radius, 16, 16),		
+				    new THREE.MeshPhongMaterial( { color: 0xff0000,transparent: true, opacity: 0.3} )
+				   );
+	this.scene.add(sphere);
+	*/
 
-						  new THREE.SphereGeometry( this.mesh.brigl.radius, 16, 16),
-						
-						  new THREE.MeshPhongMaterial( { color: 0xff0000,transparent: true, opacity: 0.3} )
-						  );
-    this.scene.add(sphere);
-	  */
         if (oldMesh) this.scene.remove(oldMesh);
 
         this.render();
@@ -1305,12 +1309,12 @@ BRIGL.BriglContainer.prototype = {
             var q = new THREE.Quaternion();
             q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
 
-            this.mesh.quaternion.multiply(q, this.mesh.quaternion);
-            this.mesh.quaternion.multiply(q2, this.mesh.quaternion);
+            this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
+            this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
             this.mesh.updateMatrix();
         } else if (this.mouseDown == 2) {
             // pan
-            this.mesh.position.addSelf(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
+            this.mesh.position.add(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
             this.mesh.updateMatrix();
         }
 
@@ -1345,12 +1349,12 @@ BRIGL.BriglContainer.prototype = {
             var q = new THREE.Quaternion();
             q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
 
-            this.mesh.quaternion.multiply(q, this.mesh.quaternion);
-            this.mesh.quaternion.multiply(q2, this.mesh.quaternion);
+            this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
+            this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
             this.mesh.updateMatrix();
         } else if (this.numberTouches == 2) {
             // pan
-            this.mesh.position.addSelf(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
+            this.mesh.position.add(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
             this.mesh.updateMatrix();
         }
 
@@ -1388,6 +1392,7 @@ BRIGL.BriglContainer.prototype = {
         // RENDERER
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	//this.renderer.setClearColor( 0xffffff, 1 );
         this.container.appendChild(this.renderer.domElement);
 
         // LIGHT (lighting could be choosen better)
@@ -1396,7 +1401,7 @@ BRIGL.BriglContainer.prototype = {
         this.scene.add(light);
 
         var light = new THREE.DirectionalLight(0xaaaaaa);
-        light.position.set(0, 00, 100);
+        light.position.set(0, 0, 100);
         this.scene.add(light);
 
         // Mouse events.
