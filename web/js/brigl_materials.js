@@ -1,3 +1,5 @@
+'use strict';
+
 function BRIGL_MATERIALS() {
 
     var BRIGL_MATERIALS = [

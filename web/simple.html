@@ -31,9 +31,8 @@ function init()
 	// load a model..
 	builder.loadModelByName("modelViper.ldr", {}, function(threejsMesh)
 	{
-		
-			// when done, show it in a BriglContainer
-			new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh).render();	
+	    // when done, show it in a BriglContainer
+	    new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh).render();	
 		
 	});
 }
