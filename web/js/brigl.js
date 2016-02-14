@@ -340,36 +340,44 @@ BRIGL.MeshFiller.prototype = {
                     // ensure array exists
                     if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
                     if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
+		    if (!vertexGroupsToBeSmoothed[f2.a]) vertexGroupsToBeSmoothed[f2.a] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1]);
+                    vertexGroupsToBeSmoothed[f.a].push([f, 0, 1]);
+                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
+		    vertexGroupsToBeSmoothed[f2.a].push([f2, 0, 0]);
                 }
                 if (this.edgeMap[kbc]) // is this a cond line ?
                 {
                     // ensure array exists
                     if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
                     if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
+		    if (!vertexGroupsToBeSmoothed[f2.b]) vertexGroupsToBeSmoothed[f2.c] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1]);
+                    vertexGroupsToBeSmoothed[f.c].push([f, 2, 1]);
+                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
+		    vertexGroupsToBeSmoothed[f2.b].push([f2, 1, 0]);
                 }
                 if (this.edgeMap[kcd]) // is this a cond line ?
                 {
                     // ensure array exists
                     if (!vertexGroupsToBeSmoothed[f2.b]) vertexGroupsToBeSmoothed[f2.b] = [];
                     if (!vertexGroupsToBeSmoothed[f2.c]) vertexGroupsToBeSmoothed[f2.c] = [];
+		    if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f2.b].push([f2, 1]);
-                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2]);
+                    vertexGroupsToBeSmoothed[f2.b].push([f2, 1, 1]);
+                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2, 1]);
+		    vertexGroupsToBeSmoothed[f.c].push([f, 2, 0]);
                 }
                 if (this.edgeMap[kda]) // is this a cond line ?
                 {
                     // ensure array exists
                     if (!vertexGroupsToBeSmoothed[f2.a]) vertexGroupsToBeSmoothed[f2.a] = [];
                     if (!vertexGroupsToBeSmoothed[f2.c]) vertexGroupsToBeSmoothed[f2.c] = [];
+		    if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f2.a].push([f2, 0]);
-                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2]);
+                    vertexGroupsToBeSmoothed[f2.a].push([f2, 0, 1]);
+                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2, 1]);
+		    vertexGroupsToBeSmoothed[f.a].push([f, 0, 0]);
                 }
             } else {
                 // set all vertex normal equals to face normal
@@ -387,8 +395,8 @@ BRIGL.MeshFiller.prototype = {
                     if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
                     if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1]);
+                    vertexGroupsToBeSmoothed[f.a].push([f, 0, true]);
+                    vertexGroupsToBeSmoothed[f.b].push([f, 1, true]);
                 }
                 if (this.edgeMap[kbc]) // is this a cond line ?
                 {
@@ -396,8 +404,8 @@ BRIGL.MeshFiller.prototype = {
                     if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
                     if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1]);
+                    vertexGroupsToBeSmoothed[f.c].push([f, 2, true]);
+                    vertexGroupsToBeSmoothed[f.b].push([f, 1, true]);
                 }
                 if (this.edgeMap[kca]) // is this a cond line ?
                 {
@@ -405,40 +413,12 @@ BRIGL.MeshFiller.prototype = {
                     if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
                     if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2]);
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0]);
+                    vertexGroupsToBeSmoothed[f.c].push([f, 2, true]);
+                    vertexGroupsToBeSmoothed[f.a].push([f, 0, true]);
                 }
             }
 
         }
-        /* ORIGINAL 
-        // now we cycle all edges found (each containing all array of affected faces)
-        Object.keys( this.edgeMap ).map((function( key ) {
-        	var facesver = this.edgeMap[ key ] ;
-        	if(facesver.length>=2) // we really handle only case with exacly two faces.
-        	{
-        		
-        		
-        		// these are our arrays with face, and two index for vertexNormals
-        		var obj1 = facesver[0];
-        		var obj2 = facesver[1];
-        		
-        		// for the two vertices in the face A, add normals of face B
-        		obj1[0].vertexNormals[obj1[1]].addSelf(obj2[0].normal);
-        		obj1[0].vertexNormals[obj1[2]].addSelf(obj2[0].normal);
-        		
-        		// for the two vertices in the face B, add normals of face A
-        		obj2[0].vertexNormals[obj2[1]].addSelf(obj1[0].normal);
-        		obj2[0].vertexNormals[obj2[2]].addSelf(obj1[0].normal);
-        		
-        		
-        		
-        		
-        	}
-        	
-        }).bind(this));
-        END ORIGINAL */
-
 
         // new algo: every condline should add TWO groups of things, one for each vertice.
         // in each group there is the list of affected vertices. This vertices should have all they normals averaged.
@@ -446,13 +426,15 @@ BRIGL.MeshFiller.prototype = {
             var smoothGroup = vertexGroupsToBeSmoothed[key];
             var smoothedVector = new THREE.Vector3(0, 0, 0);
 
-            // sum up all normals
+            // sum up the normals that we want the average of.
             for (var i = 0; i < smoothGroup.length; i++) {
                 var block = smoothGroup[i];
-                var face = block[0];
-                var vertexIdx = block[1];
+		if (block[2] == 1){
+                    var face = block[0];
+                    var vertexIdx = block[1];
 
-                smoothedVector.add(face.vertexNormals[vertexIdx]);
+                    smoothedVector.add(face.vertexNormals[vertexIdx]);
+		}
             }
 
             // now average (or just normalize)
@@ -468,14 +450,6 @@ BRIGL.MeshFiller.prototype = {
             }
 
         }).bind(this));
-
-        /*
-        for (var i=0; i<geometrySolid.faces.length; i++)
-        {
-        	var f = geometrySolid.faces[i];
-        	
-        	f.vertexNormals.forEach(function (v){v.normalize();});
-        }*/
 
     },
     buildLineGeometry: function(lineVertices, material, dontCenter) {
