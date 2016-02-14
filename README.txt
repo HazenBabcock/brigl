@@ -1,3 +1,8 @@
+
+(Note) The original git conversion without any further modifications is
+available in the "original" branch.
+
+
 Brigl, a WebGL renderer for LDraw models
 ========================================
 
