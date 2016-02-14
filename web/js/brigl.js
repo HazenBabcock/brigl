@@ -489,7 +489,7 @@ BRIGL.MeshFiller.prototype = {
         if (!dontSmooth) {
             this.smooth(geometrySolid);
         }
-
+	
         var mat = new THREE.MeshFaceMaterial(BRIGL_MATERIALS());
         var obj3d = new THREE.Mesh(geometrySolid, mat);
 
@@ -538,42 +538,20 @@ BRIGL.MeshFiller.prototype = {
 
         obj3d.brigl = brigl;
 
-        // new centering, needs great improvement
+        // centering.
         if (isRoot && (!dontCenter)) {
             if (centerOffset) {
                 brigl.offset.copy(centerOffset);
-
-            } else {
-                var min = new THREE.Vector3(100000.0, 100000.0, 100000.0);
-                var max = new THREE.Vector3(-100000.0, -100000.0, -100000.0);;
-                obj3d.traverse(function(child) {
-                    if (child.brigl !== undefined) {
-                        child.updateMatrixWorld(true);
-                        var v = child.localToWorld(new THREE.Vector3(0, 0, 0));
-			child.geometry.computeBoundingSphere();
-                        var r = child.geometry.boundingSphere.radius;
-                        max.x = Math.max(max.x, v.x + r);
-                        max.y = Math.max(max.y, v.y + r);
-                        max.z = Math.max(max.z, v.z + r);
-                        min.x = Math.min(min.x, v.x - r);
-                        min.y = Math.min(min.y, v.y - r);
-                        min.z = Math.min(min.z, v.z - r);
-                        //alert(child.brigl.part.partName+" "+v.x+","+v.y+","+v.z+"  - radius "+r);
-                    }
-                });
-                var radius = Math.max(Math.abs(max.x), Math.abs(max.y), Math.abs(max.z), Math.abs(min.x), Math.abs(min.y), Math.abs(min.z));
-                //alert(radius);
-                brigl.radius = radius;
+            }
+	    else {
+		geometrySolid.center();
+		var box = new THREE.Box3().setFromObject(obj3d);
+		brigl.radius = box.getBoundingSphere().radius;
                 brigl.offset = new THREE.Vector3();
-                brigl.offset.addVectors(max, min);
-                brigl.offset.multiplyScalar(-0.5);
-
             }
             obj3d.position.add(brigl.offset);
             obj3d.updateMatrix();
         }
-        // -------------
-
 
         return obj3d;
     }
@@ -847,16 +825,6 @@ BRIGL.QuadSpec.prototype.fillMesh = function(transform, currentColor, meshFiller
 		       this.two.clone().applyMatrix4(transform),
 		       this.three.clone().applyMatrix4(transform),
 		       this.four.clone().applyMatrix4(transform));
-    /*
-    meshFiller.addFace(this.ccw, this.certified, det, c,
-		       this.one.clone().applyMatrix4(transform),
-		       this.two.clone().applyMatrix4(transform),
-		       this.three.clone().applyMatrix4(transform));
-    meshFiller.addFace(this.ccw, this.certified, det, c,
-		       this.one.clone().applyMatrix4(transform),
-		       this.three.clone().applyMatrix4(transform),
-		       this.four.clone().applyMatrix4(transform));
-		       */
 };
 
 BRIGL.Builder = function(partsUrl, options) {
@@ -1230,12 +1198,12 @@ BRIGL.BriglContainer.prototype = {
         }
         this.scene.add(this.mesh);
 
-	/*
-	var sphere = new THREE.Mesh(new THREE.SphereGeometry( this.mesh.brigl.radius, 16, 16),		
-				    new THREE.MeshPhongMaterial( { color: 0xff0000,transparent: true, opacity: 0.3} )
-				   );
-	this.scene.add(sphere);
-	*/
+	if (true){
+	    var sphere = new THREE.Mesh(new THREE.SphereGeometry( this.mesh.brigl.radius, 16, 16),		
+					new THREE.MeshPhongMaterial( { color: 0xff0000,transparent: true, opacity: 0.3} )
+				       );
+	    this.scene.add(sphere);
+	}
 
         if (oldMesh) this.scene.remove(oldMesh);
 
