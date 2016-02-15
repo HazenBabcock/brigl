@@ -459,7 +459,8 @@ BRIGL.MeshFiller.prototype = {
         //if(!dontCenter)geometryLines.vertices.forEach(function(v){v.addSelf(offset);});
 
         // var lineMat = new THREE.LineBasicMaterial({linewidth:3.0, color : 0x000000});
-        var obj3dLines = new THREE.Line(geometryLines, material, THREE.LinePieces);
+        //var obj3dLines = new THREE.Line(geometryLines, material, THREE.LineSegments);
+	var obj3dLines = new THREE.LineSegments(geometryLines, material);
         return obj3dLines;
     },
     partToMesh: function(partSpec, options, isRoot) {
@@ -506,7 +507,6 @@ BRIGL.MeshFiller.prototype = {
                     var material = materials[BRIGL_MATERIALS_MAPPING[colKey]];
                     var obj3dLines = this.buildLineGeometry(this.lines[colKey], material, dontCenter);
                     obj3d.add(obj3dLines);
-
                 }).bind(this));
             }
         }
@@ -538,21 +538,28 @@ BRIGL.MeshFiller.prototype = {
 
         obj3d.brigl = brigl;
 
+	console.log("centering1 " + obj3d.position.x + " " + obj3d.position.y + " " + obj3d.position.z);
+	
         // centering.
         if (isRoot && (!dontCenter)) {
             if (centerOffset) {
                 brigl.offset.copy(centerOffset);
             }
 	    else {
-		geometrySolid.center();
 		var box = new THREE.Box3().setFromObject(obj3d);
+		var offset = new THREE.Vector3();
+		offset.addVectors(box.max, box.min);
+		offset.multiplyScalar( -0.5 );
+		obj3d.traverse(function(child){
+		    child.geometry.translate(offset.x, offset.y, offset.z);
+		});
 		brigl.radius = box.getBoundingSphere().radius;
                 brigl.offset = new THREE.Vector3();
             }
             obj3d.position.add(brigl.offset);
             obj3d.updateMatrix();
         }
-
+	
         return obj3d;
     }
 
@@ -1198,7 +1205,7 @@ BRIGL.BriglContainer.prototype = {
         }
         this.scene.add(this.mesh);
 
-	if (true){
+	if (0){
 	    var sphere = new THREE.Mesh(new THREE.SphereGeometry( this.mesh.brigl.radius, 16, 16),		
 					new THREE.MeshPhongMaterial( { color: 0xff0000,transparent: true, opacity: 0.3} )
 				       );
