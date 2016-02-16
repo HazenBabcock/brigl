@@ -1346,7 +1346,7 @@ BRIGL.BriglContainer.prototype = {
         // RENDERER
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	//this.renderer.setClearColor( 0xffffff, 1 );
+	this.renderer.setClearColor( 0xffffff, 1 );
         this.container.appendChild(this.renderer.domElement);
 
         // LIGHT (lighting could be choosen better)
