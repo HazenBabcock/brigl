@@ -20,7 +20,7 @@
 
                 Revision 6:
                 - Handle touch events.
-		- Updated to three.js r74.
+		- Updated to work with three.js r74.
 
 		Revision 5:
 		- Better error handling
@@ -121,7 +121,7 @@ BRIGL.AnimationDef.prototype = {
             return (function(value) {
                 var qMult = new THREE.Quaternion();
                 qMult.setFromAxisAngle(this.vector, this.interpolator(value) * this.scalar);
-                this.mesh.quaternion.multiply(qStart, qMult);
+                this.mesh.quaternion.multiplyQuaternions(qStart, qMult);
 
                 // cont.render();
 
@@ -492,7 +492,9 @@ BRIGL.MeshFiller.prototype = {
         }
 	
         var mat = new THREE.MeshFaceMaterial(BRIGL_MATERIALS());
-        var obj3d = new THREE.Mesh(geometrySolid, mat);
+	var obj3d = new THREE.Mesh(geometrySolid, mat);
+//        var obj3d = new THREE.Object3D();
+//	obj3d.add(mesh)
 
         if (drawLines) {
             if (this.blackLines) {
@@ -513,7 +515,7 @@ BRIGL.MeshFiller.prototype = {
 
         //add submesh for animations
         Object.keys(this.animatedMesh).map((function(key) {
-            if (this.animatedMesh[key].parent === undefined) // as this contains all submodels (also subsubmodels), i check first if they aren't already added
+            if (this.animatedMesh[key].parent === null) // as this contains all submodels (also subsubmodels), i check first if they aren't already added
             {
                 obj3d.add(this.animatedMesh[key]);
             }
@@ -537,8 +539,6 @@ BRIGL.MeshFiller.prototype = {
         };
 
         obj3d.brigl = brigl;
-
-	console.log("centering1 " + obj3d.position.x + " " + obj3d.position.y + " " + obj3d.position.z);
 	
         // centering.
         if (isRoot && (!dontCenter)) {
@@ -550,16 +550,18 @@ BRIGL.MeshFiller.prototype = {
 		var offset = new THREE.Vector3();
 		offset.addVectors(box.max, box.min);
 		offset.multiplyScalar( -0.5 );
+		/*
 		obj3d.traverse(function(child){
 		    child.geometry.translate(offset.x, offset.y, offset.z);
 		});
-		brigl.radius = box.getBoundingSphere().radius;
+		*/
                 brigl.offset = new THREE.Vector3();
+		brigl.offset = offset;
+		brigl.radius = box.getBoundingSphere().radius;
             }
             obj3d.position.add(brigl.offset);
             obj3d.updateMatrix();
         }
-	
         return obj3d;
     }
 
@@ -631,7 +633,7 @@ BRIGL.CommentSpec.prototype = {
                         var start = defs.indexOf('[');
                         var end = defs.indexOf(']');
                         if (start == -1) break;
-                        defstr = defs.slice(start + 1, end);
+                        var defstr = defs.slice(start + 1, end);
                         //alert("singledef:"+defstr);
                         defs = defs.slice(end + 2);
                         //alert("remainder: "+defs);
@@ -728,7 +730,9 @@ BRIGL.SubPartSpec.prototype = {
         var c = ((this.color == 16) || (this.color == 24)) ? currentColor : this.color;
 
         if (this.animated) {
-            var subPartPos = nt.getPosition();
+            //var subPartPos = nt.getPosition();
+	    var subPartPos = new THREE.Vector3();
+	    //subPartPos.setFromMatrixPosition(nt);
             var subPartPosNegated = subPartPos.clone().negate();
             // create a subfiller and a Mesh for this branch
             var subFiller = new BRIGL.MeshFiller();
@@ -1189,14 +1193,13 @@ BRIGL.BriglContainer.prototype = {
 	
         var oldMesh = this.mesh;
         this.mesh = newmesh;
-        //newmesh.useQuaternion = true;
         if (resetView) {
             newmesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, -0.5).normalize(), 3.34);
-            newmesh.geometry.computeBoundingSphere();
+	    
             // place the camera at a right distance to gracefully fill the area
-            var radiusDelta = newmesh.brigl.radius / 180.0; // empirical
+            var radiusDelta = newmesh.brigl.radius / 180.0; // empirical	    
             this.camera.position.set(0 * radiusDelta, 150 * radiusDelta, 400 * radiusDelta);
-            this.camera.lookAt(this.scene.position);
+            this.camera.lookAt(newmesh.brigl.offset.multiplyScalar(-1.0));
         } else {
             if (oldMesh) {
                 newmesh.position.copy(oldMesh.position);
