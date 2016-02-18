@@ -17,6 +17,8 @@
 <script src="js/brigl.js"></script>
 <script src="js/tween.min.js"></script>
 <script>
+'use strict';
+ 
 var builder;
 var cont;
 var offset;
@@ -67,7 +69,9 @@ function load(modelname)
 			});
 			
 			cont.render();
-        });
+        },
+	function(msg) { alert(msg); }
+	);
 }
 function init() 
 {
@@ -78,7 +82,7 @@ function init()
         
         // create the builder object to obtain the models
         builder = new BRIGL.Builder("parts/");
-        load("model.mpd");
+        load("modelmag.mpd");
         
 }
 
@@ -101,11 +105,11 @@ function startAnim(animName)
 <body onload="init();">
         <p id="logarea">Initializing...</p>
 		<select size="1" onchange="load(this.value)">
-			<option value="modelranger.mpd">Ranger</option>
+		    <option value="modelmag.mpd">MAG</option>
+		    <option value="modeltrike.mpd">Trike</option>
 			<option value="modelHoverpod1.mpd">Hoverpod1</option>
 			<option value="modelHoverpod2.mpd">Hoverpod2</option>
 			<option value="modelHoverpod3.mpd">Hoverpod3</option>
-			<option value="modelbloblo.mpd">blo blo</option>
 			<option value="modelTest.mpd">Test anim model</option>
 			<option value="modelbuggy.mpd">Buggy</option>
 			<option value="modelViper.ldr">Viper</option>
