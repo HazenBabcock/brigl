@@ -52,7 +52,7 @@ function clicked()
 	builder.loadModelByData("pastedModel.dat", document.getElementById("ta").value, {drawLines: lines}, function(ne){
 		
 		briglContainer.setModel(ne, true);
-	} );
+	}, function(msg) { alert(msg); } );
 }	
 function init() 
 {
