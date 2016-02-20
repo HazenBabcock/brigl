@@ -493,8 +493,6 @@ BRIGL.MeshFiller.prototype = {
 	
         var mat = new THREE.MeshFaceMaterial(BRIGL_MATERIALS());
 	var obj3d = new THREE.Mesh(geometrySolid, mat);
-//        var obj3d = new THREE.Object3D();
-//	obj3d.add(mesh)
 
         if (drawLines) {
             if (this.blackLines) {
@@ -550,13 +548,23 @@ BRIGL.MeshFiller.prototype = {
 		var offset = new THREE.Vector3();
 		offset.addVectors(box.max, box.min);
 		offset.multiplyScalar( -0.5 );
-		/*
-		obj3d.traverse(function(child){
-		    child.geometry.translate(offset.x, offset.y, offset.z);
-		});
-		*/
-                brigl.offset = new THREE.Vector3();
-		brigl.offset = offset;
+
+		/* 
+		 * Center, but only if there are no animations as these
+		 * will get messed up by the centering. Though presumably 
+		 * this could be corrected by adjusting the animation 
+		 * fixed point(s).
+		 */
+		if(Object.keys(this.animatedMesh).length == 0){
+		    // Move meshes.
+		    obj3d.traverse(function(child){
+			child.geometry.translate(offset.x, offset.y, offset.z);
+		    });
+		    brigl.offset = new THREE.Vector3();
+		}
+		else {
+		    brigl.offset = offset;
+		}
 		brigl.radius = box.getBoundingSphere().radius;
             }
             obj3d.position.add(brigl.offset);
@@ -1199,7 +1207,7 @@ BRIGL.BriglContainer.prototype = {
             // place the camera at a right distance to gracefully fill the area
             var radiusDelta = newmesh.brigl.radius / 180.0; // empirical	    
             this.camera.position.set(0 * radiusDelta, 150 * radiusDelta, 400 * radiusDelta);
-            this.camera.lookAt(newmesh.brigl.offset.multiplyScalar(-1.0));
+            this.camera.lookAt(this.scene.position);
         } else {
             if (oldMesh) {
                 newmesh.position.copy(oldMesh.position);
