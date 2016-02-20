@@ -46,7 +46,6 @@
        
        var reader = new FileReader();
        reader.onload = function(){
-           console.log(reader.result.substring(0, 200));
 	   builder.loadModelByData("uploadedModel.dat", reader.result, {}, function(model){
 	       briglContainer.setModel(model, true);
 	   }, handleError);
