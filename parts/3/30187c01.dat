@@ -1,0 +1,32 @@
+0 Bike  3 Wheel Motorcycle (Shortcut)
+0 Name: 30187c01.dat
+0 Author: Paul Easter [pneaster]
+0 !LDRAW_ORG Shortcut UPDATE 2002-02
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 BFC CERTIFY CW
+0 !CATEGORY Car
+0 !KEYWORDS minifig, tricycle, motorbike, motor, cycle, ATV, chopper
+0 !KEYWORDS Town, City Centre, vehicle, three
+
+0 !HISTORY 2001-11-23 [pneaster] added BFC to speed up render time.
+0 !HISTORY 2001-11-30 [PTadmin] Official Update 2001-02
+0 !HISTORY 2002-04-25 [PTadmin] Official Update 2002-02
+0 !HISTORY 2007-06-07 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+0 // 30187    Bike  3 Wheel Motorcycle Body
+0 // 30188    Bike  3 Wheel Motorcycle Base
+0 // 30189    Bike  3 Wheel Motorcycle Handlebars
+0 // 30189c01 Bike  3 Wheel Motorcycle Handlebars Shortcut
+
+1 16 0 0 0 1 0 0 0 1 0 0 0 1 30187.dat
+1 7 0 30 0 1 0 0 0 1 0 0 0 1 30188.dat
+1 16 0 0 -84 1 0 0 0 1 0 0 0 1 30189c01.dat
+0
+0 Rear Wheels and Tires
+1 15 30 30 0 0 0 -1 0 1 0 -1 0 0 6014.dat
+1 256 36 30 0 0 0 1 0 1 0 -1 0 0 6015.dat
+1 15 -30 30 0 0 0 1 0 1 0 -1 0 0 6014.dat
+1 256 -36 30 0 0 0 1 0 1 0 -1 0 0 6015.dat
+0

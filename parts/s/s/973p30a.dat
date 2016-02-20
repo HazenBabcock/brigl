@@ -1,0 +1,20 @@
+0 ~Minifig Torso with Purple Vest and Tattoo - Gold
+0 Name: s\973p30a.dat
+0 Author: Franklin W. Cain [fwcain]
+0 !LDRAW_ORG Subpart UPDATE 2002-02
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 !HISTORY 2002-04-25 [PTadmin] Official Update 2002-02
+0 !HISTORY 2007-09-13 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+ 4 16 -4 27 -10 4 27 -10 5 26 -10 -5 26 -10
+ 4 16 -4 31 -10 4 31 -10 5 32 -10 -5 32 -10
+ 4 16 -4 27 -10 -4 31 -10 -5 32 -10 -5 26 -10
+ 4 16 4 27 -10 4 31 -10 5 32 -10 5 26 -10
+ 4 16 -4 28.5 -10 -1 28.5 -10 -1 29.5 -10 -4 29.5 -10
+0
+ 1 16 -6 13 -10 1 0 0 0 0 1 0 1 0 4-4disc.dat
+ 1 16 -7 17.50 -10 1 0 0 0 0 1 0 1 0 4-4disc.dat
+ 1 16 -10 21 -10 1 0 0 0 0 1 0 1 0 4-4disc.dat
+0

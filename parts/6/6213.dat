@@ -1,0 +1,37 @@
+0 Brick  2 x  6 x  3
+0 Name: 6213.dat
+0 Author: James Jessiman
+0 !LDRAW_ORG Part ORIGINAL
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 !HISTORY 2007-07-16 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+ 1 16 40 4 0 1 0 0 0 -17 0 0 0 1 stud4.dat
+ 1 16 20 4 0 1 0 0 0 -17 0 0 0 1 stud4.dat
+ 1 16 0 4 0 1 0 0 0 -17 0 0 0 1 stud4.dat
+ 1 16 -20 4 0 1 0 0 0 -17 0 0 0 1 stud4.dat
+ 1 16 -40 4 0 1 0 0 0 -17 0 0 0 1 stud4.dat
+
+ 1 16 0 72 0 56 0 0 0 -68 0 0 0 16 box5.dat
+
+ 4 16 60 72 20 56 72 16 -56 72 16 -60 72 20
+ 4 16 -60 72 20 -56 72 16 -56 72 -16 -60 72 -20
+ 4 16 -60 72 -20 -56 72 -16 56 72 -16 60 72 -20
+ 4 16 60 72 -20 56 72 -16 56 72 16 60 72 20
+
+ 1 16 0 72 0 60 0 0 0 -72 0 0 0 20 box5.dat
+
+ 1 16 50 0 10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 30 0 10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 10 0 10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 -10 0 10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 -30 0 10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 -50 0 10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 50 0 -10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 30 0 -10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 10 0 -10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 -10 0 -10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 -30 0 -10 1 0 0 0 1 0 0 0 1 stud.dat
+ 1 16 -50 0 -10 1 0 0 0 1 0 0 0 1 stud.dat
+0

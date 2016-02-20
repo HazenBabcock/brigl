@@ -1,0 +1,16 @@
+0 Tractor Chassis (Complete Assembly Shortcut)
+0 Name: 827.dat
+0 Author: Arne Hackstein
+0 !LDRAW_ORG Part UPDATE 1998-04
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 !HISTORY 1998-03-23 [PTadmin] Official Update 1998-03
+0 !HISTORY 1998-04-11 [PTadmin] Official Update 1998-04
+0 !HISTORY 2007-07-23 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+ 1 16 0 0 0 1 0 0 0 1 0 0 0 1 870.dat
+ 1 0 26 14 0 0.92 0.39 0 -0.39 0.92 0 0 0 1 871.dat
+ 1 0 60 0 0 1 0 0 0 1 0 0 0 1 872.dat
+ 1 0 90 0 0 -1 0 0 0 1 0 0 0 -1 873.dat
+ 1 0 -7 -64 0 0.92 0.39 0 -0.39 0.92 0 0 0 1 874.dat

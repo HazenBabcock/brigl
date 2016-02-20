@@ -1,0 +1,17 @@
+0 ~S-Brick Square Stud
+0 Name: s\sbsqst.dat
+0 Author: Philippe Hurbain [Philo]
+0 !LDRAW_ORG Unofficial_Subpart
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 BFC CERTIFY CCW
+
+0 !CATEGORY Technic
+
+1 16 0 -4 0 6 0 0 0 4 0 0 0 6 box4.dat
+0 BFC INVERTNEXT
+1 16 0 -4 0 3 0 0 0 4 0 0 0 3 box4.dat
+4 16 3 -4 -3 6 -4 -6 6 -4 6 3 -4 3
+4 16 3 -4 3 6 -4 6 -6 -4 6 -3 -4 3
+4 16 -3 -4 3 -6 -4 6 -6 -4 -6 -3 -4 -3
+4 16 -3 -4 -3 -6 -4 -6 6 -4 -6 3 -4 -3

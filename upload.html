@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Upload example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+      body { background-color: #ccccff;	margin: 0px; font-family: Monospace; font-weight: bold; }
+      div  { background-color: #ffffff; border:1px solid black; width:800px; height:600px; }
+    </style>
+  </head>
+  
+  <script src="js/three.min.js"></script>
+  <script src="js/prototype.js"></script>
+  <script src="js/Detector.js"></script>
+  <script src="js/brigl_materials.js"></script>
+  <script src="js/brigl.js"></script>
+  
+  <script>
+   var builder;
+   var briglContainer;
+   var logarea;
+   
+   function init(){
+       if ( ! Detector.webgl ) { alert("no webgl"); return; }
+
+       builder = new BRIGL.Builder("parts/");
+       builder.loadModelByName("modelViper.ldr", {}, function(model){
+	   briglContainer = new BRIGL.BriglContainer(document.getElementById("container"), model);	
+       } );
+       
+       logarea = document.getElementById("log");
+       BRIGL.log = function(msg){
+  	   logarea.textContent = msg;
+       }
+   }
+
+   function handleError(msg)
+   {
+       alert("Error: " + msg);
+   }
+
+   function handleFile(event){
+       var input = event.target;
+       logarea.value = ""
+       
+       var reader = new FileReader();
+       reader.onload = function(){
+	   builder.loadModelByData("uploadedModel.dat", reader.result, {}, function(model){
+	       briglContainer.setModel(model, true);
+	   }, handleError);
+       };
+       reader.readAsText(input.files[0]);       
+   }
+  </script>
+
+  <body onload="init();">
+    <p>Select A File <input type="file" id="input" onchange="handleFile(event)"></p>
+    <p id="log">No Errors</p>
+    <div id="container"></div>
+  </body>
+</html>

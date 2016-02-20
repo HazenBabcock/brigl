@@ -1,0 +1,14 @@
+0 ~Minifig Torso with Pirate Stripes Pattern - second stripe 
+0 Name: s\973p31a.dat
+0 Author: Chris Dee [cwdee]
+0 !LDRAW_ORG Subpart UPDATE 1999-04
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 !HISTORY 1999-05-24 [PTadmin] Official Update 1999-04
+0 !HISTORY 2007-09-13 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+4 16 -11.5 4.5 -10 11.5 4.5 -10 12.5 9 -10 -12.5 9 -10
+4 16 -16.328 13.5 -10 16.328 13.5 -10 17.104 18 -10 -17.104 18 -10
+4 16 -17.878 22.5 -10 17.878 22.5 -10 18.483 26 -10 -18.483 26 -10
+0

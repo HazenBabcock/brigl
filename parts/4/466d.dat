@@ -1,0 +1,30 @@
+0 ~Minifig Book Joint Curved
+0 Name: 466d.dat
+0 Author: Franklin W. Cain [fwcain]
+0 !LDRAW_ORG Part UPDATE 2004-02
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 BFC NOCERTIFY
+
+0 !HISTORY 2004-04-22 [PTadmin] Official Update 2004-02
+0 !HISTORY 2007-07-08 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+ 1 16  -5 -27   1 -2  0  0  0  54  0  0  0 -2  1-4cyli.dat
+0
+ 1 16  -5 -27   1 -0.5  0  0  0  1  0  0  0 -0.5  1-4ring3.dat
+ 1 16  -5  27   1 -0.5  0  0  0  1  0  0  0 -0.5  1-4ring3.dat
+0
+ 1 16  -5 -27   1 -2  0  0  0  1  0  0  0 -2  1-4edge.dat
+ 1 16  -5  27   1 -2  0  0  0  1  0  0  0 -2  1-4edge.dat
+0
+ 1 16  -5 -27   1 -1.5  0  0  0  54  0  0  0 -1.5  1-4cyli.dat
+0
+ 1 16  -5 -27   1 -1.5  0  0  0  1  0  0  0 -1.5  1-4edge.dat
+ 1 16  -5  27   1 -1.5  0  0  0  1  0  0  0 -1.5  1-4edge.dat
+0
+ 2 24  -6.5 -27   1  -6.5  27   1
+0
+ 2 24  -5 -27  -0.5  -5  27  -0.5
+0
+0 // end of file

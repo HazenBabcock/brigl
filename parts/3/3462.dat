@@ -1,0 +1,21 @@
+0 Plate  2 x  3 with Helicopter Rotor Holder
+0 Name: 3462.dat
+0 Author: Christian M. Angele [cma_1971]
+0 !LDRAW_ORG Part UPDATE 2002-05
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 !KEYWORDS pin
+
+0 !HISTORY 1997-12-05 [PTadmin] Official Update 1997-17
+0 !HISTORY 1998-09-15 [PTadmin] Official Update 1998-08
+0 !HISTORY 1998-10-15 [PTadmin] Official Update 1998-09
+0 !HISTORY 2002-07-16 [fwcain] Added keywords...  
+0 !HISTORY 2002-11-30 [PTadmin] Official Update 2002-05
+0 !HISTORY 2007-06-25 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+ 1 16 0 0 0 1 0 0 0 1 0 0 0 1 3021.DAT
+ 1 16 0 0 0 1.25 0 0 0 2 0 0 0 1.25 connect4.DAT
+ 1 16 0 -4 0 7.50 0 0 0 1 0 0 0 7.50 4-4edge.DAT
+ 1 16 0 0 0 7.50 0 0 0 1 0 0 0 7.50 4-4edge.DAT
+0

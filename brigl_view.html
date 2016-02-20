@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Brigl-View</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+     body { background-color: #ccccff;	margin: 0px; font-family: Monospace; font-weight: bold; }
+     .col-5 {width: 100%;}
+     .div { background-color: #ffffff; border:1px solid black;}
+     #model { width:800px; height: 600px; border:1px solid black;}
+    </style>
+  </head>
+  
+  <script src="js/three.min.js"></script>
+  <script src="js/prototype.js"></script>
+  <script src="js/Detector.js"></script>
+  <script src="js/brigl_materials.js"></script>
+  <script src="js/brigl.js"></script>
+  <script src="js/briglv.js"></script>
+  <script src="js/brigl_view.js"></script>
+  
+  <body onload="init();">
+      <p>Select A File <input type="file" id="input" onchange="handleFile(event)"></p>
+      <p id="log"></p>
+      <p id="mpd">MPB model selection:<select id="mpd_select" onchange="handleMPDSelect()"></select></p>
+      <div class="div" id="model"></div>
+      <div class="col5 div">
+	  <p onclick="incStep(1)">up</p>
+	  <p onclick="incStep(-1)">down</p>
+      </div>
+      <div class="col5 div" id="part_display">
+      </div>
+      <div>
+	  <div>	  
+	      <canvas id="webgl_canvas"></canvas>
+	  </div>
+      </div>
+  </body>
+</html>

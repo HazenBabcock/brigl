@@ -1,0 +1,20 @@
+0 Minifig Book Open
+0 Name: 33009c01.dat
+0 Author: Franklin W. Cain [fwcain]
+0 !LDRAW_ORG Shortcut UPDATE 2012-01
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 BFC CERTIFY CW
+
+0 !CATEGORY Minifig Accessory
+
+0 !HISTORY 2012-03-30 [PTadmin] Official Update 2012-01
+
+ 1 16   0   0   0  1  0  0  0  0 -1  0  1  0  466a.dat
+ 1 16   8   0   0  1  0  0  0  0 -1  0  1  0  466b.dat
+ 1 16  -8   0   0  1  0  0  0  0 -1  0  1  0  466c.dat
+0
+ 1 16   0   0   0 -1  0  0  0  0 -1  0 -1  0  466e.dat
+ 1 16   0   0   0  1  0  0  0  0 -1  0  1  0  466e.dat
+0
+0 end of file

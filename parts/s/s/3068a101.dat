@@ -1,0 +1,25 @@
+0 ~Tile  2 x  2 w/ SW Rebel Mechanical Pattern (color-264)
+0 Name: s\3068a101.dat
+0 Author: John Van Zwieten [jvan]
+0 !LDRAW_ORG Subpart UPDATE 2002-02
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 !HISTORY 1999-12-31 [PTadmin] Official Update 1999-06
+0 !HISTORY 2002-02-21 [unknown] Fixed gaps and overlapping regions
+0 !HISTORY 2002-04-25 [PTadmin] Official Update 2002-02
+0 !HISTORY 2007-08-30 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+
+ 4 16 1 0 8 1.4 0 8 1.4 0 -8 1 0 -8
+ 4 16 8.55 0 8 8.15 0 8 8.15 0 -8 8.55 0 -8
+ 4 16 -1 0 -2.498 -1.35 0 -2.498 -1.35 0 -8 -1 0 -8
+ 4 16 -8.55 0 -2.498 -8.1 0 -2.498 -8.1 0 -8 -8.55 0 -8
+ 4 16 17.2 0 -15.6 17.086 0 -16.174 17.086 0 -9.4 17.2 0 -9.4
+ 4 16 17.086 0 -16.174 16.761 0 -16.661 16.761 0 -9.4 17.086 0 -9.4
+ 4 16 12.2 0 -15.6 12.314 0 -16.174 12.314 0 -9.4 12.2 0 -9.4
+ 4 16 12.314 0 -16.174 12.639 0 -16.661 12.639 0 -9.4 12.314 0 -9.4
+ 4 16 -17.2 0 -15.6 -17.086 0 -16.174 -17.086 0 -9.4 -17.2 0 -9.4
+ 4 16 -17.086 0 -16.174 -16.761 0 -16.661 -16.761 0 -9.4 -17.086 0 -9.4
+ 4 16 -12.2 0 -15.6 -12.314 0 -16.174 -12.314 0 -9.4 -12.2 0 -9.4
+ 4 16 -12.314 0 -16.174 -12.639 0 -16.661 -12.639 0 -9.4 -12.314 0 -9.4
+0

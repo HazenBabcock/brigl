@@ -1,0 +1,22 @@
+0 Sticker with White "POLICE" and Red Line on Black Ground
+0 Name: 170872a.dat
+0 Author: Michael Heidemann [mikeheide]
+0 !LDRAW_ORG Part UPDATE 2010-02
+0 !LICENSE Redistributable under CCAL version 2.0 : see CAreadme.txt
+
+0 BFC CERTIFY CCW
+0 !KEYWORDS set 6598
+
+0 !HISTORY 2010-07-05 [PTadmin] Official Update 2010-02
+
+1 0 0 9.75 11 1 0 0 0 0 1 0 -1 0 s\3010p16a.dat
+4 0 -38 -0.25 10 -38 -0.25 -10 -31 -0.25 -9.5 -31 -0.25 9
+4 0 32 -0.25 9 32 -0.25 -9.5 38 -0.25 -10 38 -0.25 10
+4 0 -38 -0.25 -10 38 -0.25 -10 32 -0.25 -9.5 -31 -0.25 -9.5
+4 0 38 -0.25 10 -38 -0.25 10 -31 -0.25 9 32 -0.25 9
+4 0 38 0 10 38 0 -10 -38 0 -10 -38 0 10
+4 0 38 -0.25 10 38 -0.25 -10 38 0 -10 38 0 10
+4 0 -38 0 10 -38 0 -10 -38 -0.25 -10 -38 -0.25 10
+4 0 38 0 -10 38 -0.25 -10 -38 -0.25 -10 -38 0 -10
+4 0 -38 0 10 -38 -0.25 10 38 -0.25 10 38 0 10
+0
