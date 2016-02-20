@@ -1174,11 +1174,10 @@ BRIGL.BriglContainer = function(container, model, options) {
     this.renderer = 0;
     this.container = container;
     this.mouseDown = 0;
-    this.numberTouches = 0;
     this.lastMouseX = null;
     this.lastMouseY = null;
-    this.lastTouchX = null;
-    this.lastTouchY = null;
+    this.touches = null;
+    this.number_touches = 0;
 
     this.setup(options ? options : {
         antialias: true
@@ -1292,23 +1291,21 @@ BRIGL.BriglContainer.prototype = {
     handleTouchEnd: function(event) {
         event.preventDefault();
         event.stopPropagation();
-        this.numberTouches = 0;
+        this.number_touches = 0;
     },
 
     handleTouchMove: function(event) {
-        if (this.numberTouches == 0) {
+        if (this.number_touches == 0) {
             return;
         }
         event.preventDefault();
         event.stopPropagation();
-        var newX = event.touches[0].pageX;
-        var newY = event.touches[0].pageY;
 
-        var deltaX = newX - this.lastTouchX;
-        var deltaY = newY - this.lastTouchY;
+	// 1 touch is rotation.
+        if (this.number_touches == 1) {
+	    var deltaX = event.touches[0].pageX - this.touches[0].pageX;
+	    var deltaY = event.touches[0].pageY - this.touches[0].pageY;
 
-        if (this.numberTouches == 1) {
-            // rotation
             var q2 = new THREE.Quaternion();
             q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
             var q = new THREE.Quaternion();
@@ -1317,14 +1314,39 @@ BRIGL.BriglContainer.prototype = {
             this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
             this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
             this.mesh.updateMatrix();
-        } else if (this.numberTouches == 2) {
-            // pan
-            this.mesh.position.add(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
+        }
+	
+	// 2 touches are panning and scaling.
+	else if (this.number_touches == 2) {
+	    // pan.
+	    var delta1 = new THREE.Vector3(event.touches[0].pageX - this.touches[0].pageX,
+					   event.touches[0].pageY - this.touches[0].pageY);
+	    var delta2 = new THREE.Vector3(event.touches[1].pageX - this.touches[1].pageX,
+					   event.touches[1].pageY - this.touches[1].pageY);
+
+	    var pan = new THREE.Vector3();
+	    pan.addVectors(delta1, delta2);
+	    pan.multiplyScalar(0.2);
+	    pan.y = -1.0 * pan.y;
+            this.mesh.position.add(pan);
+
+	    // resize.
+	    var delta1 = new THREE.Vector3(this.touches[0].pageX - this.touches[1].pageX,
+					   this.touches[0].pageY - this.touches[1].pageY);
+	    var delta2 = new THREE.Vector3(event.touches[0].pageX - event.touches[1].pageX,
+					   event.touches[0].pageY - event.touches[1].pageY);
+
+	    var scale = delta1.length()/delta2.length();
+            this.camera.position.multiplyScalar(scale);
+	    
             this.mesh.updateMatrix();
         }
 
-        this.lastTouchX = newX;
-        this.lastTouchY = newY;
+	this.touches = [];
+	for (var i = 0; i < this.number_touches; i++){
+	    this.touches.push(event.touches[i]);
+	}
+	//this.touches = event.touches;
 
         this.render();
     },
@@ -1334,9 +1356,11 @@ BRIGL.BriglContainer.prototype = {
         event.preventDefault();
         event.stopPropagation();
 
-        this.numberTouches = event.touches.length;
-        this.lastTouchX = event.touches[0].pageX;
-        this.lastTouchY = event.touches[0].pageY;
+	this.touches = [];
+        this.number_touches = event.touches.length;
+	for (var i = 0; i < this.number_touches; i++){
+	    this.touches.push(event.touches[i]);
+	}
     },
     
     setup: function(options) {
