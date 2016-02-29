@@ -4,14 +4,10 @@
     <title>Brigl-View</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <style>
-     body { background-color: #ccccff;	margin: 0px; font-family: Monospace; font-weight: bold; }
-     .col-5 {width: 100%;}
-     .div { background-color: #ffffff; border:1px solid black;}
-     #model { width:800px; height: 600px; border:1px solid black;}
-    </style>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link href="brigl_view.css" rel="stylesheet" type="text/css">
   </head>
-  
+
   <script src="js/three.min.js"></script>
   <script src="js/prototype.js"></script>
   <script src="js/Detector.js"></script>
@@ -24,10 +20,24 @@
       <p>Select A File <input type="file" id="input" onchange="handleFile(event)"></p>
       <p id="log"></p>
       <p id="mpd">MPB model selection:<select id="mpd_select" onchange="handleMPDSelect()"></select></p>
-      <div class="div" id="model"></div>
+      <div class="aspectwrapper">
+	  <div class="content" id="model"></div>
+      </div>
       <div class="col5 div">
-	  <p onclick="incStep(1)">up</p>
-	  <p onclick="incStep(-1)">down</p>
+	  <ul class="pager">
+	      <li>
+		  <a href="#" onclick="incStep(-1)">down</a>
+	      </li>
+	      <li>
+		  <p class="fill_space" id="current_step">Showing 0 of 0 steps</p>
+	      </li>
+	      <li>
+		  <a href="#" onclick="incStep(1)">up</a>
+	      </li>
+	  </ul>
+      </div>
+      <div>
+	  <p>Part used in this step:</p>
       </div>
       <div class="col5 div" id="part_display">
       </div>

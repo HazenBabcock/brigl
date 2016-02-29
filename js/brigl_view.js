@@ -19,6 +19,7 @@ var model;
 var mpd_select;
 var part_canvases = [];
 var part_display;
+var step_text_display;
 var webgl_canvas;
 
 function handleError(msg)
@@ -36,14 +37,12 @@ function handleFile(event){
     reader.onload = function(){
 	model.reset();
 	model.loadModel(reader.result,
-			{},
 			function(){
 			    group_number = 0;
 			    cur_step = max_step = model.getMaxStep(group_number);
 			    populateMPDSelect(model.getGroupNames());
 			    handleUpdate(group_number, max_step, true);
 			    have_model = true;
-			    console.log("loading complete");
 			},
 			handleError);
     };
@@ -67,39 +66,76 @@ function handleUpdate(group_number, step_number, reset_view){
      */
     var parts = model.getParts(group_number, step_number);
 
-    // Create the right number of canvases for displaying the parts.
-    /*
-    while (part_canvases.length > parts.length){
-	part_display.removeChild(part_display.firstChild);
-	part_canvases.pop();
+    // Don't display more than 20 parts per step under the
+    // assumption that this means the model has no steps.
+    var parts_length = parts.length;
+    if (parts_length > 20){
+	parts_length = 20;
     }
-    while (part_canvases.length < parts.length){
+    
+    // Create the right number of canvases for displaying the parts.
+    while (part_canvases.length > (3*parts_length)){
+	part_display.removeChild(part_display.lastChild);
+	part_canvases.pop();
+	part_canvases.pop();
+	part_canvases.pop();	
+    }
+    while (part_canvases.length < (3*parts_length)){
 	var new_div = document.createElement("div");
 	part_display.appendChild(new_div);
-	var new_canvas = document.createElement("canvas");
-	new_div.appendChild(new_canvas);
-	
+
 	new_div.style.border = "1px solid black";
 	new_div.style.display = "inline-block";
-	console.log(new_div);
-	new_div.style.border = "1px solid blue";
-	new_canvas.style.width = "100px";
-	new_canvas.style.height = "100px";
 
-	part_canvases.push(new_canvas);
-	console.log(new_canvas);
+	for (var i = 0; i < 3; i++){
+	    var new_canvas = document.createElement("canvas");
+	    new_div.appendChild(new_canvas);
+	    new_canvas.style.width = "200px";
+	    new_canvas.style.height = "200px";
+	    new_canvas.style.padding = "5px";
+	    part_canvases.push(new_canvas);
+	}
     }
-    */
+    
     // Do the actual rendering.
-    /*
-    for (var i = 0; i < parts.length; i++){
-	briglv_partcontainer.setPart(parts[i][0]);
-	var part_context = part_canvases[i].getContext("2d");
-	part_context.clearRect(0, 0, part_canvases[i].width, part_canvases[i].height);
+    for (var i = 0; i < parts_length; i++){
+
+	// Get first canvas and clear.
+	var part_context = part_canvases[3*i].getContext("2d");
+	part_context.clearRect(0, 0, part_canvases[2*i].width, part_canvases[2*i].height);
+
+	// Draw first orientation.
+	var ori = new THREE.Vector3(1, 0, 0);
+	briglv_partcontainer.setPart(parts[i][0], ori);
 	part_context.drawImage(webgl_canvas, 0, 0);
+
+	// Add number of this type of part.
+	part_context.font="30px Georgia";
+	part_context.fillText(parts[i][1] + "x", 10, 30);
+
+	// Get second canvas and clear.
+	var part_context = part_canvases[3*i+1].getContext("2d");
+	part_context.clearRect(0, 0, part_canvases[2*i+1].width, part_canvases[2*i+1].height);
+	
+	// Draw second orientation.
+	var ori = new THREE.Vector3(0, 1, 0);
+	briglv_partcontainer.setPart(parts[i][0], ori);
+	part_context.drawImage(webgl_canvas, 0, 0);
+
+	// Get third canvas and clear.
+	var part_context = part_canvases[3*i+2].getContext("2d");
+	part_context.clearRect(0, 0, part_canvases[2*i+1].width, part_canvases[2*i+1].height);
+	
+	// Draw third orientation.
+	var ori = new THREE.Vector3(0, 0, 1);
+	briglv_partcontainer.setPart(parts[i][0], ori);
+	part_context.drawImage(webgl_canvas, 0, 0);
+		
 	part_context.stroke();
     }
-    */
+
+    // Update part number text.
+    step_text_display.textContent = "Showing " + (step_number - 1)  + " of " + (max_step - 1) + " steps"
 }
 
 function incStep(delta){
@@ -124,14 +160,18 @@ function init(){
     // Model rendering.
     model = new BRIGLV.Model();
     briglv_container = new BRIGLV.Container(document.getElementById("model"));
+    briglv_container.render();
 
     // Part rendering
     webgl_canvas = document.getElementById("webgl_canvas");
     webgl_canvas.style.visibility = "hidden";
-    //briglv_partcontainer = new BRIGLV.PartContainer(webgl_canvas);
+    briglv_partcontainer = new BRIGLV.PartContainer(webgl_canvas);
 
     // Part display
     part_display = document.getElementById("part_display");
+
+    // Step text
+    step_text_display = document.getElementById("current_step");
    
     logarea = document.getElementById("log");
     BRIGL.log = function(msg){

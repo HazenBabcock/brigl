@@ -1,0 +1,37 @@
+
+body { background-color: #cccccc;	margin: 0px; font-family: Monospace; font-weight: bold; }
+
+.col-5 {width: 100%;}
+
+.div { background-color: #ffffff; border:1px solid black;}
+
+/* model { width:800px; height: 600px; border:1px solid black;} */
+
+#webgl_canvas { width:200px; height: 200px;}
+
+/* 
+   This part was basically copied from here:
+
+   http://stackoverflow.com/questions/1311068/scale-a-div-to-fit-in-window-but-preserve-aspect-ratio
+*/
+.aspectwrapper {
+  display: inline-block;
+  width: 100%;          
+  position: relative;
+}
+.aspectwrapper::after {
+  padding-top: 56.25%;
+  display: block;
+  content: '';
+}
+.content {
+  position: absolute;
+  top: 0; bottom: 0; right: 0; left: 0;
+  outline: thin black;
+}
+
+p.fill_space
+{
+   display:inline-block;
+   margin:0;
+}
