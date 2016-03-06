@@ -68,3 +68,10 @@ BRIGL.BriglContainer options:
 - antialias: use antialias. default true
 - all other options supported by http://mrdoob.github.io/three.js/docs/53/#Reference/Renderers/WebGLRenderer
 
+===============
+Notes
+===============
+
+- BRIGL will not resize the container element that is used for rendering, so the desired size must be specified in advance.
+- Currently BRIGL does not handle re-size events.
+
