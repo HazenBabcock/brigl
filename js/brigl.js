@@ -335,6 +335,7 @@ BRIGL.MeshFiller.prototype = {
                 var kda = this.edgeMapKey(f2.c, f2.a);
                 // see if one of the four edges of this face is a cond line
                 // if it is, we save the face and the index of the two vertices of the edge for later processing
+		// Also save the face and index of the other triangle that makes up this quad for processing.
                 if (this.edgeMap[kab]) // is this a cond line ?
                 {
                     // ensure array exists
@@ -395,8 +396,8 @@ BRIGL.MeshFiller.prototype = {
                     if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
                     if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0, true]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1, true]);
+                    vertexGroupsToBeSmoothed[f.a].push([f, 0, 1]);
+                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
                 }
                 if (this.edgeMap[kbc]) // is this a cond line ?
                 {
@@ -404,8 +405,8 @@ BRIGL.MeshFiller.prototype = {
                     if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
                     if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2, true]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1, true]);
+                    vertexGroupsToBeSmoothed[f.c].push([f, 2, 1]);
+                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
                 }
                 if (this.edgeMap[kca]) // is this a cond line ?
                 {
@@ -413,8 +414,8 @@ BRIGL.MeshFiller.prototype = {
                     if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
                     if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
                     // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2, true]);
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0, true]);
+                    vertexGroupsToBeSmoothed[f.c].push([f, 2, 1]);
+                    vertexGroupsToBeSmoothed[f.a].push([f, 0, 1]);
                 }
             }
 
@@ -1303,8 +1304,8 @@ BRIGL.BriglContainer.prototype = {
 
 	// 1 touch is rotation.
         if (this.number_touches == 1) {
-	    var deltaX = event.touches[0].pageX - this.touches[0].pageX;
-	    var deltaY = event.touches[0].pageY - this.touches[0].pageY;
+	    var deltaX = event.touches[0].pageX - this.touches[0];
+	    var deltaY = event.touches[0].pageY - this.touches[1];
 
             var q2 = new THREE.Quaternion();
             q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
@@ -1319,10 +1320,10 @@ BRIGL.BriglContainer.prototype = {
 	// 2 touches are panning and scaling.
 	else if (this.number_touches == 2) {
 	    // pan.
-	    var delta1 = new THREE.Vector3(event.touches[0].pageX - this.touches[0].pageX,
-					   event.touches[0].pageY - this.touches[0].pageY);
-	    var delta2 = new THREE.Vector3(event.touches[1].pageX - this.touches[1].pageX,
-					   event.touches[1].pageY - this.touches[1].pageY);
+	    var delta1 = new THREE.Vector3(event.touches[0].pageX - this.touches[0],
+					   event.touches[0].pageY - this.touches[1]);
+	    var delta2 = new THREE.Vector3(event.touches[1].pageX - this.touches[2],
+					   event.touches[1].pageY - this.touches[3]);
 
 	    var pan = new THREE.Vector3();
 	    pan.addVectors(delta1, delta2);
@@ -1331,8 +1332,8 @@ BRIGL.BriglContainer.prototype = {
             this.mesh.position.add(pan);
 
 	    // resize.
-	    var delta1 = new THREE.Vector3(this.touches[0].pageX - this.touches[1].pageX,
-					   this.touches[0].pageY - this.touches[1].pageY);
+	    var delta1 = new THREE.Vector3(this.touches[0] - this.touches[2],
+					   this.touches[1] - this.touches[3]);
 	    var delta2 = new THREE.Vector3(event.touches[0].pageX - event.touches[1].pageX,
 					   event.touches[0].pageY - event.touches[1].pageY);
 
@@ -1344,37 +1345,47 @@ BRIGL.BriglContainer.prototype = {
 
 	this.touches = [];
 	for (var i = 0; i < this.number_touches; i++){
-	    this.touches.push(event.touches[i]);
+	    this.touches.push(event.touches[i].pageX);
+	    this.touches.push(event.touches[i].pageY);
 	}
-	//this.touches = event.touches;
 
         this.render();
     },
 
     handleTouchStart: function(event) {
-
         event.preventDefault();
         event.stopPropagation();
 
 	this.touches = [];
         this.number_touches = event.touches.length;
 	for (var i = 0; i < this.number_touches; i++){
-	    this.touches.push(event.touches[i]);
+	    this.touches.push(event.touches[i].pageX);
+	    this.touches.push(event.touches[i].pageY);
 	}
     },
     
     setup: function(options) {
         // SCENE
         this.scene = new THREE.Scene();
-        // CAMERA
+
+	// CAMERA
         var SCREEN_WIDTH = this.container.offsetWidth,
             SCREEN_HEIGHT = this.container.offsetHeight;
         var VIEW_ANGLE = 45,
             ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT,
             NEAR = 0.1,
             FAR = 20000;
+
+	// Warning the user if the container is really small.
+	if ((SCREEN_WIDTH < 20) || (SCREEN_HEIGHT < 20)){
+	    var msg = "Warning! Rendering container is very small!";
+	    BRIGL.log(msg);
+	    console.log(msg);
+	}
+	
         this.camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-        // this.camera = new THREE.OrthographicCamera( SCREEN_WIDTH / - 2, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, SCREEN_HEIGHT / - 2, NEAR, FAR );
+
+	
         this.scene.add(this.camera);
         this.camera.position.set(0, 150, 400);
         this.camera.lookAt(this.scene.position);
