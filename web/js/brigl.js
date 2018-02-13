@@ -258,10 +258,9 @@ BRIGL.MeshFiller.prototype = {
         var idx1 = this.addVertice(flip ? v2 : v0);
         var idx2 = this.addVertice(v1);
         var idx3 = this.addVertice(flip ? v0 : v2);
-        var idx4;
-        var fa;
+
         if (isQuad) {
-	    idx4 = this.addVertice(v3);
+	    var idx4 = this.addVertice(v3);
 
 	    var f1 = new THREE.Face3(idx1, idx2, idx3);
 	    f1.is_quad = true;
@@ -281,7 +280,7 @@ BRIGL.MeshFiller.prototype = {
 	    this.faces.push(f2);
 	}
 	else {
-            fa = new THREE.Face3(idx1, idx2, idx3);
+            var fa = new THREE.Face3(idx1, idx2, idx3);
 	    fa.materialIndex = BRIGL_MATERIALS_MAPPING[color];
             if (fa.materialIndex === undefined) {
 		BRIGL.log("Unknown material " + color);
@@ -302,9 +301,6 @@ BRIGL.MeshFiller.prototype = {
         arr.push(v2);
     },
     addCondLine: function(v1, v2) {
-        //this.lines.push(v1.clone());
-        //this.lines.push(v2.clone());
-
         var idx1 = this.addVertice(v1);
         var idx2 = this.addVertice(v2);
         var key = this.edgeMapKey(idx1, idx2);
@@ -317,7 +313,6 @@ BRIGL.MeshFiller.prototype = {
 
         for (var i = 0; i < geometrySolid.faces.length; i++) {
             var f = geometrySolid.faces[i];
-            //var isQuad = f instanceof THREE.Face4;
 	    var isQuad = f.is_quad;
 
             if (isQuad) {
