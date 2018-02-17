@@ -367,7 +367,7 @@ BRIGL.MeshFiller.prototype = {
 		
                 // Set all vertex normal equals to face normal
                 f.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone()];
-		f2.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone()];
+		f2.vertexNormals = [f2.normal.clone(), f2.normal.clone(), f2.normal.clone()];
 		
                 // Calculate keys of the four edges, we'll compare these against this.edgeMap
 		// to look for conditional lines.
@@ -538,7 +538,7 @@ BRIGL.MeshFiller.prototype = {
                     if (!vertexGroupsToBeSmoothedMap[f.c]) vertexGroupsToBeSmoothedMap[f.c] = [];
 
 		    // Add vertex.
-		    vertexGroupsToBeSmoothedMap[f.c].push([f, edps, 1, 1]);
+		    vertexGroupsToBeSmoothedMap[f.c].push([f, edps, 2, 1]);
                 }
             }
         }
@@ -609,14 +609,13 @@ BRIGL.MeshFiller.prototype = {
 	    for (var i = 0; i < smoothGroupsMaps.length; i++){
 		smoothGroups.push([]);
 	    }
-
+	    
 	    for (var i = 0; i < vertexGroup.length; i++) {
 		var vgArray = vertexGroup[i];
 		var vgEdps = vgArray[1];
 		var i_grp = this.whichGroup(smoothGroupsMaps, vgEdps[0]);
 		smoothGroups[i_grp].push(vgArray);
 	    }
-	    var tmp = 1;
 
 	    // Iterate over all smooth groups.
 	    //
