@@ -226,23 +226,51 @@ BRIGL.MeshFiller = function() {
 
 BRIGL.MeshFiller.prototype = {
     constructor: BRIGL.MeshFiller,
-    /* used for fast, order-irrelevant indexing of edges */
+    // Used for fast, order-irrelevant indexing of edges.
     edgeMapKey: function(idx1, idx2) {
         return Math.min(idx1, idx2) + ":" + Math.max(idx1, idx2)
     },
+    // Merge two dictionaries into the first dictionary. Any keys that are common
+    // will have the values that are in second dictionary.
+    //
+    // This is designed to be used in the smoothing algorithm where we don't
+    // care what the values are, only that they are defined.
+    //
+    mergeDicts: function (d1, d2) {
+	Object.keys(d2).map(function(key){
+	    d1[key] = d2[key];
+	});
+	return d1;
+    },
+    // Return the index of the group that contains key, or -1 if key is
+    // not in any of the dictionaries.
+    //
+    // grp_list is a list of dictionaries, [{}, {}, ..].
+    //
+    whichGroup: function (grp_list, key){
+	for (var i = 0; i < grp_list.length; i++){
+	    if (grp_list[i][key]){
+		return i;
+	    }
+	}
+	return -1;
+    },
     addVertice: function(v) {
-        // add a vertice to the geometry returning the index in the array. If a vertex close enought exists, that one is returned and no vertices are added
+	//
+        // Add a vertice to the geometry returning the index in the array. If a vertex close enough
+	// exists, that one is returned and no vertices are added. Each vertex has a unique ID number
+	// which is also the index into verticesArray[].
+	//
         var key = [Math.round(v.x * this.precision), Math.round(v.y * this.precision), Math.round(v.z * this.precision)].join('_');
         var res = this.verticesMap[key];
         if (res === undefined) {
             // new vertice
             res = this.verticesArray.length;
-            this.verticesMap[key] = res; // store index for vertice V (since is new will be bottom of array)
+            this.verticesMap[key] = res;     // Store index for vertice V (since is new will be bottom of array)
             this.verticesArray.push(v);
         }
         return res;
     },
-
     addFace: function(ccw, certified, det, color, v0, v1, v2, v3) {
         if (!certified) {
             // supertrick to create 1 or 2 additional inverted faces if not certified, this problably breaks the smoothing algorithm.
@@ -263,7 +291,7 @@ BRIGL.MeshFiller.prototype = {
 	    var idx4 = this.addVertice(v3);
 
 	    var f1 = new THREE.Face3(idx1, idx2, idx3);
-	    f1.is_quad = true;
+	    f1.isQuad = true;
 	    f1.materialIndex = BRIGL_MATERIALS_MAPPING[color];
             if (f1.materialIndex === undefined) {
 		BRIGL.log("Unknown material " + color);
@@ -288,7 +316,6 @@ BRIGL.MeshFiller.prototype = {
 	    }
             this.faces.push(fa);
 	}
-
     },
     addLine: function(v1, v2, color) {
         if (this.blackLines) color = 0; // if wants all black, just use always 0 as color
@@ -304,149 +331,325 @@ BRIGL.MeshFiller.prototype = {
         var idx1 = this.addVertice(v1);
         var idx2 = this.addVertice(v2);
         var key = this.edgeMapKey(idx1, idx2);
-        this.edgeMap[key] = []; // add empy array, later this will be filled by faces sharing this edge
-
+        this.edgeMap[key] = {};
     },
     smooth: function(geometrySolid) {
-        // this is an array with a Vertex Idx as index and an array as value. Each array contains the face and the vertex index within the face
-        var vertexGroupsToBeSmoothed = {};
+	//
+	// 1. Create map for the vertices containing information about which faces and
+	//    conditional lines contact this vertex
+	//
+
+	//
+        // This is an array with a Vertex Idx as index and an array as value. The array is an
+	// array of arrays in the form [[f1, [b], 1], [f2, [b, c], 1], ..], where the
+	// first element of each array if the face, the second is the vertices that contact this
+	// vertex that are at the other end of conditional lines, the third is the vertex ID and
+	// 1/0 is for dealing with the challenge of creating quads from triangles.
+	//
+        var vertexGroupsToBeSmoothedMap = {};
 
         for (var i = 0; i < geometrySolid.faces.length; i++) {
             var f = geometrySolid.faces[i];
-	    var isQuad = f.is_quad;
 
-            if (isQuad) {
+	    // Handle quads
+	    //
+	    // Note quads are arranged like this:
+	    //
+	    // a/a------c(d)
+	    //  | \  f2 |
+	    //  |   \   |
+	    //  | f   \ |
+	    //  b------c/b
+	    //
+            if (f.isQuad) {
 		i += 1;
 		var f2 = geometrySolid.faces[i];
 		
-                // set all vertex normal equals to face normal
+                // Set all vertex normal equals to face normal
                 f.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone()];
 		f2.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone()];
 		
-                // calculate keys of the four edges
+                // Calculate keys of the four edges, we'll compare these against this.edgeMap
+		// to look for conditional lines.
                 var kab = this.edgeMapKey(f.a, f.b);
                 var kbc = this.edgeMapKey(f.c, f.b);
                 var kcd = this.edgeMapKey(f2.b, f2.c);
                 var kda = this.edgeMapKey(f2.c, f2.a);
-                // see if one of the four edges of this face is a cond line
-                // if it is, we save the face and the index of the two vertices of the edge for later processing
-		// Also save the face and index of the other triangle that makes up this quad for processing.
-                if (this.edgeMap[kab]) // is this a cond line ?
+
+		// For each vertex, check if one or both lines are also conditional lines.
+		//
+		
+		// f.a / f2.a
+		//
+                if ((this.edgeMap[kab])||(this.edgeMap[kda]))
                 {
-                    // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
-                    if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
-		    if (!vertexGroupsToBeSmoothed[f2.a]) vertexGroupsToBeSmoothed[f2.a] = [];
-                    // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0, 1]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
-		    vertexGroupsToBeSmoothed[f2.a].push([f2, 0, 0]);
+		    // Add endpoints of edges that are conditional lines.
+		    var edps = [];
+		    if (this.edgeMap[kab]){
+			edps.push(f.b);
+		    }
+		    if (this.edgeMap[kda]){
+			edps.push(f2.c);
+		    }
+			
+                    // Ensure array exists
+                    if (!vertexGroupsToBeSmoothedMap[f.a]) vertexGroupsToBeSmoothedMap[f.a] = [];
+
+		    // Add vertex.
+		    vertexGroupsToBeSmoothedMap[f.a].push([f, edps, 0, 1]);
+		    vertexGroupsToBeSmoothedMap[f.a].push([f2, edps, 0, 0]);
                 }
-                if (this.edgeMap[kbc]) // is this a cond line ?
+
+		// f.b
+		//
+                if ((this.edgeMap[kab])||(this.edgeMap[kbc]))
                 {
-                    // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
-                    if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
-		    if (!vertexGroupsToBeSmoothed[f2.b]) vertexGroupsToBeSmoothed[f2.c] = [];
-                    // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2, 1]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
-		    vertexGroupsToBeSmoothed[f2.b].push([f2, 1, 0]);
+		    // Add endpoints of edges that are conditional lines.
+		    var edps = [];
+		    if (this.edgeMap[kab]){
+			edps.push(f.a);
+		    }
+		    if (this.edgeMap[kbc]){
+			edps.push(f.c);
+		    }
+			
+                    // Ensure array exists
+                    if (!vertexGroupsToBeSmoothedMap[f.b]) vertexGroupsToBeSmoothedMap[f.b] = [];
+
+		    // Add vertex.
+		    vertexGroupsToBeSmoothedMap[f.b].push([f, edps, 1, 1]);
                 }
-                if (this.edgeMap[kcd]) // is this a cond line ?
+
+		// f.c / f2.b
+		//
+                if ((this.edgeMap[kbc])||(this.edgeMap[kcd]))
                 {
-                    // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f2.b]) vertexGroupsToBeSmoothed[f2.b] = [];
-                    if (!vertexGroupsToBeSmoothed[f2.c]) vertexGroupsToBeSmoothed[f2.c] = [];
-		    if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
-                    // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f2.b].push([f2, 1, 1]);
-                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2, 1]);
-		    vertexGroupsToBeSmoothed[f.c].push([f, 2, 0]);
+		    // Add endpoints of edges that are conditional lines.
+		    var edps = [];
+		    if (this.edgeMap[kbc]){
+			edps.push(f.b);
+		    }
+		    if (this.edgeMap[kcd]){
+			edps.push(f2.c);
+		    }
+			
+                    // Ensure array exists
+                    if (!vertexGroupsToBeSmoothedMap[f.c]) vertexGroupsToBeSmoothedMap[f.c] = [];
+
+		    // Add vertex.
+		    vertexGroupsToBeSmoothedMap[f.c].push([f, edps, 2, 1]);
+		    vertexGroupsToBeSmoothedMap[f.c].push([f2, edps, 1, 0]);
                 }
-                if (this.edgeMap[kda]) // is this a cond line ?
+		
+		// f2.c
+		//
+                if ((this.edgeMap[kcd])||(this.edgeMap[kda]))
                 {
-                    // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f2.a]) vertexGroupsToBeSmoothed[f2.a] = [];
-                    if (!vertexGroupsToBeSmoothed[f2.c]) vertexGroupsToBeSmoothed[f2.c] = [];
-		    if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
-                    // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f2.a].push([f2, 0, 1]);
-                    vertexGroupsToBeSmoothed[f2.c].push([f2, 2, 1]);
-		    vertexGroupsToBeSmoothed[f.a].push([f, 0, 0]);
+		    // Add endpoints of edges that are conditional lines.
+		    var edps = [];
+		    if (this.edgeMap[kcd]){
+			edps.push(f.c);
+		    }
+		    if (this.edgeMap[kda]){
+			edps.push(f.a);
+		    }
+			
+                    // Ensure array exists
+                    if (!vertexGroupsToBeSmoothedMap[f2.c]) vertexGroupsToBeSmoothedMap[f2.c] = [];
+
+		    // Add vertex.
+		    vertexGroupsToBeSmoothedMap[f2.c].push([f2, edps, 2, 1]);
                 }
-            } else {
-                // set all vertex normal equals to face normal
+            }
+	    // Handle triangles.
+	    //
+	    //  a
+	    //  | \
+	    //  |   \
+	    //  | f   \
+	    //  b------c
+	    //
+	    else {
+                // Set all vertex normal equals to face normal.
                 f.vertexNormals = [f.normal.clone(), f.normal.clone(), f.normal.clone()];
-                // calculate keys of the three edges
+		
+                // Calculate keys of the three edges.
                 var kab = this.edgeMapKey(f.a, f.b);
                 var kbc = this.edgeMapKey(f.c, f.b);
                 var kca = this.edgeMapKey(f.a, f.c);
-                // see if one of the three edges of this face is a cond line
-                // if it is, we save the face and the index of the two vertices of the edge for later processing
 
-                if (this.edgeMap[kab]) // is this a cond line ?
+		// Check each vertex for conditional lines.
+		//
+		
+		// f.a
+		//
+                if ((this.edgeMap[kab])||(this.edgeMap[kca]))
                 {
-                    // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
-                    if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
-                    // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0, 1]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
+		    // Add endpoints of edges that are conditional lines.
+		    var edps = [];
+		    if (this.edgeMap[kab]){
+			edps.push(f.b);
+		    }
+		    if (this.edgeMap[kca]){
+			edps.push(f.c);
+		    }
+			
+                    // Ensure array exists
+                    if (!vertexGroupsToBeSmoothedMap[f.a]) vertexGroupsToBeSmoothedMap[f.a] = [];
+
+		    // Add vertex.
+		    vertexGroupsToBeSmoothedMap[f.a].push([f, edps, 0, 1])
                 }
-                if (this.edgeMap[kbc]) // is this a cond line ?
+		
+		// f.b		
+		//
+                if ((this.edgeMap[kab])||(this.edgeMap[kbc]))
                 {
-                    // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
-                    if (!vertexGroupsToBeSmoothed[f.b]) vertexGroupsToBeSmoothed[f.b] = [];
-                    // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2, 1]);
-                    vertexGroupsToBeSmoothed[f.b].push([f, 1, 1]);
+		    // Add endpoints of edges that are conditional lines.
+		    var edps = [];
+		    if (this.edgeMap[kab]){
+			edps.push(f.a);
+		    }
+		    if (this.edgeMap[kbc]){
+			edps.push(f.c);
+		    }
+			
+                    // Ensure array exists
+                    if (!vertexGroupsToBeSmoothedMap[f.b]) vertexGroupsToBeSmoothedMap[f.b] = [];
+
+		    // Add vertex.
+		    vertexGroupsToBeSmoothedMap[f.b].push([f, edps, 1, 1]);
                 }
-                if (this.edgeMap[kca]) // is this a cond line ?
+
+		// f.c
+		//
+                if ((this.edgeMap[kbc])||(this.edgeMap[kca]))
                 {
-                    // ensure array exists
-                    if (!vertexGroupsToBeSmoothed[f.c]) vertexGroupsToBeSmoothed[f.c] = [];
-                    if (!vertexGroupsToBeSmoothed[f.a]) vertexGroupsToBeSmoothed[f.a] = [];
-                    // add both vectors to their respective smooth group
-                    vertexGroupsToBeSmoothed[f.c].push([f, 2, 1]);
-                    vertexGroupsToBeSmoothed[f.a].push([f, 0, 1]);
+		    // Add endpoints of edges that are conditional lines.
+		    var edps = [];
+		    if (this.edgeMap[kbc]){
+			edps.push(f.b);
+		    }
+		    if (this.edgeMap[kca]){
+			edps.push(f.a);
+		    }
+			
+                    // Ensure array exists
+                    if (!vertexGroupsToBeSmoothedMap[f.c]) vertexGroupsToBeSmoothedMap[f.c] = [];
+
+		    // Add vertex.
+		    vertexGroupsToBeSmoothedMap[f.c].push([f, edps, 1, 1]);
                 }
             }
-
         }
 
-        // new algo: every condline should add TWO groups of things, one for each vertice.
-        // in each group there is the list of affected vertices. This vertices should have all they normals averaged.
-        Object.keys(vertexGroupsToBeSmoothed).map((function(key) {
-            var smoothGroup = vertexGroupsToBeSmoothed[key];
-            var smoothedVector = new THREE.Vector3(0, 0, 0);
+	//
+	// 2. For each vertex we identify groups of faces that share conditional lines, then calculate
+	//    a single vertex normal for each group of faces.
+	//
+        Object.keys(vertexGroupsToBeSmoothedMap).map((function(key) {
+            var vertexGroup = vertexGroupsToBeSmoothedMap[key];
 
-            // sum up the normals that we want the average of.
-            for (var i = 0; i < smoothGroup.length; i++) {
-                var block = smoothGroup[i];
-		if (block[2] == 1){
-                    var face = block[0];
-                    var vertexIdx = block[1];
+	    // First create a list of dictionaries. The keys of the dictionary will be the edges that
+	    // are common to the faces that will be grouped together for smoothing.
+	    //
+	    var smoothGroupsMaps = [];
+	    for (var i = 0; i < vertexGroup.length; i++) {
+		var vgArray = vertexGroup[i];
+		var vgEdps = vgArray[1];
 
-                    smoothedVector.add(face.vertexNormals[vertexIdx]);
+		// If there is only one edge then check if there is already a group that contains this
+		// edge. Create a new group if not.
+		if (vgEdps.length == 1){
+		    var i_grp = this.whichGroup(smoothGroupsMaps, vgEdps[0]);
+
+		    // Create a new group if one does not already exist.
+		    if (i_grp == -1){
+			var grp_dict = {};
+			grp_dict[vgEdps[0]] = 1;
+			smoothGroupsMaps.push(grp_dict);
+		    }
 		}
-            }
 
-            // now average (or just normalize)
-            smoothedVector.normalize();
+		// If there are two edges this is a little more complicated because if they are each in
+		// different groups then we have to merge the two groups into a single group and discard
+		// one of the old groups.
+		else {
+		    var i1_grp = this.whichGroup(smoothGroupsMaps, vgEdps[0]);
+		    var i2_grp = this.whichGroup(smoothGroupsMaps, vgEdps[1]);
 
-            // now set it back to all faces
-            for (var i = 0; i < smoothGroup.length; i++) {
-                var block = smoothGroup[i];
-                var face = block[0];
-                var vertexIdx = block[1];
+		    // Neither are in group, create a new group with both of them.
+		    if ((i1_grp == -1) && (i2_grp == -1)){
+			var grp_dict = {};
+			grp_dict[vgEdps[0]] = 1;
+			grp_dict[vgEdps[1]] = 1;
+			smoothGroupsMaps.push(grp_dict);
+		    }
+		    // Only one is in a group, add the other to the same group.
+		    else if ((i1_grp > -1) && (i2_grp == -1)){
+			smoothGroupsMaps[i1_grp][vgEdps[1]] = 1;
+		    }
+		    // Only one is in a group, add the other to the same group.
+		    else if ((i1_grp == -1) && (i2_grp > -1)){
+			smoothGroupsMaps[i2_grp][vgEdps[0]] = 1;
+		    }
+		    // They are in different groups. Add everything in the second dictionary
+		    // to the first dictionary and remove the second dictionary.
+		    else{
+			this.mergeDicts(smoothGroupsMaps[i1_grp], smoothGroupsMaps[i2_grp]);
+			smoothGroupsMaps.splice(i2_grp, 1);
+		    }
+		}
+	    }
 
-                face.vertexNormals[vertexIdx].copy(smoothedVector);
-            }
+	    // Now create smoothing groups. This is an array of arrays, [[vg1, vg2], [..]]. The elements
+	    // (vg1, vg2, ..) contain the face data in the same form as in vertexGroupsToBeSmoothedMap.
+	    //
+	    var smoothGroups = [];
+	    for (var i = 0; i < smoothGroupsMaps.length; i++){
+		smoothGroups.push([]);
+	    }
 
+	    for (var i = 0; i < vertexGroup.length; i++) {
+		var vgArray = vertexGroup[i];
+		var vgEdps = vgArray[1];
+		var i_grp = this.whichGroup(smoothGroupsMaps, vgEdps[0]);
+		smoothGroups[i_grp].push(vgArray);
+	    }
+	    var tmp = 1;
+
+	    // Iterate over all smooth groups.
+	    //
+	    for (var i = 0; i < smoothGroups.length; i++){
+		var smoothGroup  = smoothGroups[i];
+		
+		// Iterate over group summing up the normals.
+		//
+		var smoothedVector = new THREE.Vector3(0, 0, 0);
+		for (var j = 0; j < smoothGroup.length; j++){
+                    var vgArray = smoothGroup[j];
+		    if (vgArray[3] == 1){
+			var face = vgArray[0];
+			var vertexIdx = vgArray[2];
+			
+			smoothedVector.add(face.vertexNormals[vertexIdx]);
+		    }
+		}
+
+		// Normalize.
+		smoothedVector.normalize();
+		
+		// Use the same vector for all of the faces that are smoothed together
+		// at this vertex.
+		//
+		for (var j = 0; j < smoothGroup.length; j++) {
+                    var vgArray = smoothGroup[j];
+                    var face = vgArray[0];
+                    var vertexIdx = vgArray[2];		    
+                    face.vertexNormals[vertexIdx].copy(smoothedVector);
+		}
+	    }
         }).bind(this));
-
     },
     buildLineGeometry: function(lineVertices, material, dontCenter) {
         var geometryLines = new THREE.Geometry();
