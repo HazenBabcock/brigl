@@ -888,6 +888,17 @@ BRIGL.PartSpec.prototype = {
     },
     fillMesh: function(transform, currentColor, meshFiller, stepLimit) {
         for (var i = 0; i < this.lines.length; i++) {
+
+	    // stepLimit being defined is marker for this being called at the
+	    // root level instead of at the sub-part level.
+	    //
+	    // Note: This will not work well if the root level only has a few
+	    //       parts and most of the model is in sub parts.
+	    //
+	    if (typeof stepLimit != 'undefined'){
+		BRIGL.log("Generating geometry " + i + "/" + this.lines.length);
+	    }
+	    
             var spec = this.lines[i];
             if ((spec.isStep) && (spec.isStep())) {
                 stepLimit--;
@@ -1044,12 +1055,83 @@ BRIGL.QuadSpec.prototype.fillMesh = function(transform, currentColor, meshFiller
 		       this.four.clone().applyMatrix4(transform));
 };
 
-BRIGL.Builder = function(partsUrl, options) {
+// This object handles the actual fetching of the part from the server. It
+// can use either jQuery or Ajax to handle the request. It also handles
+// checking multiple locations for a part so that the standard LDraw directory
+// layout can be used.
+//
+BRIGL.PartFetcher = function(partsUrls, partName, successCallback, errorCallback){
+    this.errorCallback = errorCallback;
+    this.errorMsg = "";
+    this.partName = partName;
+    this.partsUrls = partsUrls;
+    this.successCallback = successCallback;
+    this.urlIndex = 0;
+}
+
+BRIGL.PartFetcher.prototype = {
+    constructor : BRIGL.PartFetcher,
+
+    useAjax : function () {
+	if (this.urlIndex == this.partsUrls.length){
+	    this.errorCallback("Could not load " + this.partName + " '" + this.errorMsg + "'");
+	}
+	else{
+	    var purl = this.sanitizeUrl(this.partsUrls[this.urlIndex] + this.partName);
+            new Ajax.Request(purl, {
+                method: 'get',
+                onSuccess: (function(transport) {
+		    this.successCallback(transport.responseText);
+                }).bind(this),
+                onFailure: (function(a) {
+		    //this.errorMsg = a.status + " - " + a.responseText;
+		    this.errorMsg = a.status;
+		    this.urlIndex++;
+		    this.useAjax();
+                }).bind(this)
+            });
+	}
+    },
+    
+    useJQuery : function () {
+	if (this.urlIndex == this.partsUrls.length){
+	    this.errorCallback("Could not load " + this.partName + " '" + this.errorMsg + "'");
+	}
+	else{
+	    var purl = this.sanitizeUrl(this.partsUrls[this.urlIndex] + this.partName);
+            jQuery.ajax({
+		url: purl,
+		type: "get",
+		dataType: "text",
+		error: (function(a) {
+		    //this.errorMsg = a.status + " - " + a.responseText;
+		    this.errorMsg = a.status;
+		    this.urlIndex++;
+		    this.useJQuery();
+		}).bind(this),
+		success: (function(strdata) {
+                    this.successCallback(strdata);
+		}).bind(this)
+            });
+	}
+    },
+    
+    sanitizeUrl : function(purl){
+	return purl.replace(/\\/gi, "/");
+    }
+}
+
+BRIGL.Builder = function(partsUrls, options) {
     // constructor
     if (!options) options = {};
     this.partCache = {};
     this.partRequests = {};
-    this.partsUrl = partsUrl;
+    if (partsUrls instanceof Array){
+	this.partsUrls = partsUrls;
+    }
+    else {
+	this.partsUrls = [partsUrls];
+    }
     this.asyncnum = 0;
     this.options = options;
 };
@@ -1067,59 +1149,21 @@ BRIGL.Builder.prototype = {
     },
 
     asyncReq: function(partName, callback) {
-        var purl;
         if (this.options.forceLowercase) {
             partName = partName.toLowerCase();
         }
-        if (this.options.dontUseSubfolders) {
-            purl = this.partsUrl + partName;
-        } else {
-            purl = this.partsUrl + partName.charAt(0) + "/" + partName; // replicate first char to subdivide in more folders
+        if (!this.options.dontUseSubfolders) {
+	    // replicate first char to subdivide in more folders
+	    partName = partName.charAt(0) + "/" + partName; 
         }
-        this.asyncReqUrl(purl, callback);
-    },
 
-    asyncReqUrl: function(purl, callback) {
-        var purl = purl.replace(/\\/gi, "/");
-        this.asyncnum++;
-
-        if (this.options.ajaxMethod == "jquery") {
-            jQuery.ajax({
-                url: purl,
-                type: "get",
-                dataType: "text",
-                error: (function(a) {
-                    this.asyncnum--;
-                    var msg = a.status + " - " + a.responseText;
-                    this.errorCallback(msg);
-                }).bind(this),
-                success: (function(strdata) {
-                    var res = strdata;
-                    this.asyncnum--;
-
-                    callback(res);
-                }).bind(this)
-            });
-
-
-        } else {
-            new Ajax.Request(purl, {
-                method: 'get',
-                //onCreate: function(arg) {arguments[0].request.transport.overrideMimeType('text\/plain; charset=x-user-defined') }, // force to download unprocessed, useful for eventual binary parts.
-
-                onSuccess: (function(transport) {
-                    var res = transport.responseText;
-                    this.asyncnum--;
-
-                    callback(res);
-                }).bind(this),
-                onFailure: (function(a) {
-                    this.asyncnum--;
-                    var msg = a.status + " - " + a.responseText;
-                    this.errorCallback(msg);
-                }).bind(this)
-            });
-        }
+	var fetcher = new BRIGL.PartFetcher(this.partsUrls, partName, callback, this.errorCallback);
+	if (this.options.ajaxMethod == "jquery") {
+	    fetcher.useJQuery();
+	}
+	else{
+	    fetcher.useAjax();
+	}	
     },
 
     // Loads a model from the part server and return the Mesh
@@ -1129,7 +1173,6 @@ BRIGL.Builder.prototype = {
         if (!options) options = {};
         var partSpec = this.getPart(partName);
         partSpec.whenReady((function() {
-            //this.buildAndReturnMesh(partSpec, callback, options.drawLines?options.drawLines:false, options.stepLimit ? options.stepLimit : -1);
             BRIGL.log("Generating geometry");
             var meshFiller = new BRIGL.MeshFiller();
             var mesh;
@@ -1170,9 +1213,6 @@ BRIGL.Builder.prototype = {
             }).bind(this)
 
         );
-
-
-
     },
 
     parsePart: function(partSpec, partData) {
