@@ -1164,48 +1164,6 @@ BRIGL.Builder.prototype = {
 	else{
 	    fetcher.useAjax();
 	}	
-            //this.asyncReqUrl(purl, callback);
-    },
-
-    asyncReqUrl: function(purl, callback) {
-        var purl = purl.replace(/\\/gi, "/");
-        this.asyncnum++;
-
-        if (this.options.ajaxMethod == "jquery") {
-            jQuery.ajax({
-                url: purl,
-                type: "get",
-                dataType: "text",
-                error: (function(a) {
-                    this.asyncnum--;
-                    var msg = a.status + " - " + a.responseText;
-                    this.errorCallback(msg);
-                }).bind(this),
-                success: (function(strdata) {
-                    var res = strdata;
-                    this.asyncnum--;
-
-                    callback(res);
-                }).bind(this)
-            });
-
-
-        } else {
-            new Ajax.Request(purl, {
-                method: 'get',
-                onSuccess: (function(transport) {
-                    var res = transport.responseText;
-                    this.asyncnum--;
-
-                    callback(res);
-                }).bind(this),
-                onFailure: (function(a) {
-                    this.asyncnum--;
-                    var msg = a.status + " - " + a.responseText;
-                    this.errorCallback(msg);
-                }).bind(this)
-            });
-        }
     },
 
     // Loads a model from the part server and return the Mesh
