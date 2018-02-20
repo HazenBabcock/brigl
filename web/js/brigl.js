@@ -595,7 +595,7 @@ BRIGL.MeshFiller.prototype = {
 		    }
 		    // They are in different groups. Add everything in the second dictionary
 		    // to the first dictionary and remove the second dictionary.
-		    else{
+		    else if (i1_grp != i2_grp){
 			this.mergeDicts(smoothGroupsMaps[i1_grp], smoothGroupsMaps[i2_grp]);
 			smoothGroupsMaps.splice(i2_grp, 1);
 		    }
