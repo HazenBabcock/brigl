@@ -13,7 +13,7 @@ import shutil
 import sys
 
 if (len(sys.argv) != 3):
-    print "usage: <input directory> <output directory>"
+    print("usage: <input directory> <output directory>")
     exit()
 
 for elt in os.listdir(sys.argv[1]):
@@ -21,7 +21,7 @@ for elt in os.listdir(sys.argv[1]):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
-    print "Processing", elt, out_dir + os.path.sep + elt
+    print("Processing", elt, out_dir + os.path.sep + elt)
     
     if os.path.isfile(sys.argv[1] + os.path.sep + elt):
         shutil.copyfile(sys.argv[1] + os.path.sep + elt,
