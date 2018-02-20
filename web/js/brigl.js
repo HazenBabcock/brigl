@@ -1074,7 +1074,7 @@ BRIGL.PartFetcher.prototype = {
 
     useAjax : function () {
 	if (this.urlIndex == this.partsUrls.length){
-	    errorCallback("Could not load " + this.partName + " '" + this.errorMsg + "'");
+	    this.errorCallback("Could not load " + this.partName + " '" + this.errorMsg + "'");
 	}
 	else{
 	    var purl = this.sanitizeUrl(this.partsUrls[this.urlIndex] + this.partName);
@@ -1084,7 +1084,8 @@ BRIGL.PartFetcher.prototype = {
 		    this.successCallback(transport.responseText);
                 }).bind(this),
                 onFailure: (function(a) {
-		    this.errorMsg = a.status + " - " + a.responseText;
+		    //this.errorMsg = a.status + " - " + a.responseText;
+		    this.errorMsg = a.status;
 		    this.urlIndex++;
 		    this.useAjax();
                 }).bind(this)
@@ -1094,7 +1095,7 @@ BRIGL.PartFetcher.prototype = {
     
     useJQuery : function () {
 	if (this.urlIndex == this.partsUrls.length){
-	    errorCallback("Could not load " + this.partName + " '" + this.errorMsg + "'");
+	    this.errorCallback("Could not load " + this.partName + " '" + this.errorMsg + "'");
 	}
 	else{
 	    var purl = this.sanitizeUrl(this.partsUrls[this.urlIndex] + this.partName);
@@ -1103,7 +1104,8 @@ BRIGL.PartFetcher.prototype = {
 		type: "get",
 		dataType: "text",
 		error: (function(a) {
-		    this.errorMsg = a.status + " - " + a.responseText;
+		    //this.errorMsg = a.status + " - " + a.responseText;
+		    this.errorMsg = a.status;
 		    this.urlIndex++;
 		    this.useJQuery();
 		}).bind(this),

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <head>
-	<title>Test JQuery 1</title>
+	<title>Test Ajax 2</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<style>
@@ -11,14 +11,18 @@
     </head>
     
     <script src="../js/three.min.js"></script>
-    <script src="../js/jquery-1.9.1.js"></script>
     <script src="../js/prototype.js"></script>
     <script src="../js/Detector.js"></script>
     <script src="../js/brigl_materials.js"></script>
     <script src="../js/brigl.js"></script>
     
     <script>
-   
+
+     function handleError(msg)
+     {
+	 alert(msg);
+     }
+     
      function init() 
      {
 	 if ( ! Detector.webgl ) { alert("no webgl"); return; }
@@ -27,15 +31,15 @@
 	 BRIGL.log = function(msg){document.getElementById("logarea").textContent = msg;};
 	 
 	 // create the builder object to obtain the models
-	 var builder = new BRIGL.Builder(["p/", "parts/"], {dontUseSubfolders : 1, ajaxMethod : "jquery"});
-
+	 var builder = new BRIGL.Builder(["p/", "parts/"], {dontUseSubfolders : 1});
+	 
 	 // load a model..
-	 builder.loadModelByName("3010.dat", {}, function(threejsMesh)
+	 builder.loadModelByName("3622.dat", {}, function(threejsMesh)
 	     {
 		 // when done, show it in a BriglContainer
 	    new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh).render();	
 		 
-	     });
+	     }, handleError);
      }
      
     </script>

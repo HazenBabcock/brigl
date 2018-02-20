@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <head>
-	<title>Test JQuery 1</title>
+	<title>Test JQuery 2</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 	<style>
@@ -18,7 +18,11 @@
     <script src="../js/brigl.js"></script>
     
     <script>
-   
+     function handleError(msg)
+     {
+	 alert(msg);
+     }
+     
      function init() 
      {
 	 if ( ! Detector.webgl ) { alert("no webgl"); return; }
@@ -30,12 +34,12 @@
 	 var builder = new BRIGL.Builder(["p/", "parts/"], {dontUseSubfolders : 1, ajaxMethod : "jquery"});
 
 	 // load a model..
-	 builder.loadModelByName("3010.dat", {}, function(threejsMesh)
+	 builder.loadModelByName("3622.dat", {}, function(threejsMesh)
 	     {
 		 // when done, show it in a BriglContainer
 	    new BRIGL.BriglContainer(document.getElementById("container"), threejsMesh).render();	
 		 
-	     });
+	     }, handleError);
      }
      
     </script>
