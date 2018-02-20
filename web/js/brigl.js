@@ -888,6 +888,17 @@ BRIGL.PartSpec.prototype = {
     },
     fillMesh: function(transform, currentColor, meshFiller, stepLimit) {
         for (var i = 0; i < this.lines.length; i++) {
+
+	    // stepLimit being defined is marker for this being called at the
+	    // root level instead of at the sub-part level.
+	    //
+	    // Note: This will not work well if the root level only has a few
+	    //       parts and most of the model is in sub parts.
+	    //
+	    if (typeof stepLimit != 'undefined'){
+		BRIGL.log("Generating geometry " + i + "/" + this.lines.length);
+	    }
+	    
             var spec = this.lines[i];
             if ((spec.isStep) && (spec.isStep())) {
                 stepLimit--;
@@ -1170,9 +1181,6 @@ BRIGL.Builder.prototype = {
             }).bind(this)
 
         );
-
-
-
     },
 
     parsePart: function(partSpec, partData) {
