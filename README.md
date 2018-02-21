@@ -9,10 +9,10 @@ available in the "original" branch.
 
 ## Badges ##
 
-[![Documentation Status](https://readthedocs.org/projects/brigl/badge/?version=latest)](https://brigl.readthedocs.io/).
+[![Documentation Status](https://readthedocs.org/projects/brigl/badge/?version=latest)](https://brigl.readthedocs.io/)
 
 
-## Online demo ##
+## Online demos ##
 
 This version in [action](https://hazenbabcock.github.io/brigl/index.html).
 
