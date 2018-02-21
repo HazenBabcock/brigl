@@ -20,8 +20,9 @@ Download Parts
 Prepare Parts
 -------------
 
-In the instructions below ``webdir`` will refer to the brigl root directory on
-the web server, ``/var/www/html/brigl/`` for example.
+In the instructions below ``/var/www/html/brigl/`` is the folder on the
+web server where BRIGL will be installed. Adjust as needed.
+
 
 Simplest Installation
 ~~~~~~~~~~~~~~~~~~~~~
@@ -32,19 +33,19 @@ Simplest Installation
    $ unzip complete.zip
    $ cd /var/www/html/brigl/
    $ mkdir ldraw
-   $ cp -r /path/to/ldraw_dir/parts ldraw/.
-   $ cp -r /path/to/ldraw_dir/p ldraw/.
+   $ cp -r /path/to/ldraw_dir/parts ./ldraw/.
+   $ cp -r /path/to/ldraw_dir/p ./ldraw/.
   
 2. Copy the web folder from brigl. ::
 
    $ cd /var/www/html/brigl/
-   $ cp /path/to/brigl/web/* .
+   $ cp -r /path/to/brigl/web/* .
 
 3. Copy a model to the models directory. ::
 
    $ cd /var/www/html/brigl/
    $ mkdir models
-   $ cp /path/to/brigl/web/parts/m/modelViper.ldr models/.
+   $ cp /path/to/brigl/web/parts/m/modelViper.ldr ./models/.
    
 4. Start your browser and load this url.
 
@@ -74,8 +75,8 @@ In this installation all of the parts are in a folder called ``parts``.
 3. Prepare parts using the prepareParts.py Python script. ::
 
    $ cd /var/www/html/brigl
-   $ python /path/to/brigl/tools/prepareParts.py path/to/ldraw_dir/parts parts
-   $ python /path/to/brigl/tools/prepareParts.py path/to/ldraw_dir/p parts
+   $ python /path/to/brigl/tools/prepareParts.py path/to/ldraw_dir/parts ./parts
+   $ python /path/to/brigl/tools/prepareParts.py path/to/ldraw_dir/p ./parts
 
 4. Start your browser and load this url.
 

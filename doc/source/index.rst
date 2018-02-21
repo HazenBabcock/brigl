@@ -10,6 +10,7 @@ User's Guide
 .. toctree:: 
 
    installation.rst
+   options.rst
    debugging.rst
 
 Search
