@@ -1,3 +1,7 @@
+
+Warning! Deprecated! Please see the on-line documentation.
+
+
 How to prepare the software
 ===========================
 
