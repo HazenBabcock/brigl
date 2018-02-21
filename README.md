@@ -9,12 +9,12 @@ available in the "original" branch.
 
 ## Badges ##
 
-[![Documentation Status](http://brigl.readthedocs.io/en/latest/?badge=latest)](http://brigl.readthedocs.io/).
+[![Documentation Status](https://readthedocs.org/projects/brigl/badge/?version=latest)](https://brigl.readthedocs.io/).
 
 
 ## Online demo ##
 
-This version in [action](http://hazenbabcock.github.io/brigl/index.html).
+This version in [action](https://hazenbabcock.github.io/brigl/index.html).
 
 The original in [action](http://www.lugato.net/brigl/index.html).
 
@@ -45,6 +45,6 @@ It then starts a WebGL context and renders your model!
 
 ## How to use ##
 
-The documentation is [here](http://brigl.readthedocs.io/en/latest/).
+The documentation is [here](https://brigl.readthedocs.io/en/latest/).
 
 
