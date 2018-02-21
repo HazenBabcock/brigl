@@ -1,0 +1,25 @@
+#############
+## Python
+#############
+
+*.py[co]
+*.egg-info
+build/
+*.eggs
+dist/
+.cache/
+.DS_STORE
+storm_analysis/test/output/
+*__pycache__*
+
+#############
+## Emacs
+#############
+
+*~
+
+######################
+## Documentation build
+######################
+
+doc/build
