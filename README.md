@@ -7,6 +7,10 @@ them with WebGL.
 Note: The original git conversion without any further modifications is
 available in the "original" branch.
 
+## Badges ##
+
+[![Documentation Status](http://brigl.readthedocs.io/en/latest/?badge=latest)](http://brigl.readthedocs.io/).
+
 
 ## Online demo ##
 
@@ -41,6 +45,6 @@ It then starts a WebGL context and renders your model!
 
 ## How to use ##
 
-To use this library you must download and prepare LDraw part library.
-Please follow instructions in HOWTO.txt
+The documentation is [here](http://brigl.readthedocs.io/en/latest/).
+
 
