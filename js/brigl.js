@@ -1166,6 +1166,16 @@ BRIGL.Builder.prototype = {
 	}	
     },
 
+    asyncReqUrl: function(url, callback) {
+	var fetcher = new BRIGL.PartFetcher([""], url, callback, this.errorCallback);
+	if (this.options.ajaxMethod == "jquery") {
+	    fetcher.useJQuery();
+	}
+	else{
+	    fetcher.useAjax();
+	}	
+    },
+
     // Loads a model from the part server and return the Mesh
     loadModelByName: function(partName, options, callback, errorCallback) {
         BRIGL.log("Creating " + partName + "...");
