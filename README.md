@@ -1,13 +1,11 @@
 
 ## Brigl, a WebGL renderer for LDraw models ##
 
-Brigl is a javascript program that reads and parses LDraw models, and render 
+Brigl is a javascript program that read and parses LDraw models, and renders 
 them with WebGL.
 
 Note: The original git conversion without any further modifications is
 available in the "original" branch.
-
-## Badges ##
 
 [![Documentation Status](https://readthedocs.org/projects/brigl/badge/?version=latest)](https://brigl.readthedocs.io/)
 
