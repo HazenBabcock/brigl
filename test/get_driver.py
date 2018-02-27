@@ -11,6 +11,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities  
 
+
 # Web browser interface.
 def getDriver():
     """
@@ -30,6 +31,19 @@ def getDriver():
 
 
 # Utility functions.
+
+class BRIGLTestException():
+    pass
+
+def noSevereErrors(driver):
+    log_data = driver.get_log('browser')
+    severe_errors = parseLog(log_data)
+    if (len(severe_errors) > 0):
+        print("Severe error(s) detected:")
+        for elt in severe_errors:
+            print(elt)
+        raise BRIGLTextException("Severe error(s) detected.")
+
 def parseLog(log_data, level = 'SEVERE'):
     """
     Return only those messages with the specified level.

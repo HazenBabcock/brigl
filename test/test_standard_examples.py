@@ -21,8 +21,7 @@ def test_simple():
         time.sleep(0.5)
 
     assert(worked)
-    log_data = driver.get_log('browser')
-    print(getDriver.pprintLog(getDriver.parseLog(log_data)))
+    getDriver.noSevereErrors(driver)
     driver.close()
 
 def test_multiple():
@@ -38,8 +37,7 @@ def test_multiple():
         time.sleep(0.5)
 
     assert(worked)
-    log_data = driver.get_log('browser')
-    print(getDriver.pprintLog(getDriver.parseLog(log_data)))
+    getDriver.noSevereErrors(driver)
     driver.close()
 
 def test_copypaste():
@@ -55,12 +53,27 @@ def test_copypaste():
         time.sleep(0.5)
 
     assert(worked)
-    log_data = driver.get_log('browser')
-    print(getDriver.pprintLog(getDriver.parseLog(log_data)))
-    driver.close()    
+    getDriver.noSevereErrors(driver)
+    driver.close()
+
+def test_steps():
+    driver = getDriver.getDriver()
+    driver.get(configure.www_root + "steps.html")
+    log = driver.find_element_by_id("logarea")
+
+    worked = False
+    for i in range(20):
+        if ("Model loaded successfully" in log.text):
+            worked = True
+            break
+        time.sleep(0.5)
+
+    assert(worked)
+    getDriver.noSevereErrors(driver)
+    driver.close()
 
 if (__name__ == "__main__"):
-#    test_simple()
-#    test_multiple()
+    test_simple()
+    test_multiple()
     test_copypaste()
-    
+    test_steps()
