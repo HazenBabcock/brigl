@@ -6,12 +6,12 @@ import time
 import sys
 
 import configure as configure
-import get_driver as getDriver
+import driver as driver
 
 def test_simple():
-    driver = getDriver.getDriver()
-    driver.get(configure.www_root + "simple.html")
-    log = driver.find_element_by_id("logarea")
+    www_driver = driver.getDriver()
+    www_driver.get(configure.www_root + "simple.html")
+    log = www_driver.find_element_by_id("logarea")
 
     worked = False
     for i in range(20):
@@ -21,13 +21,13 @@ def test_simple():
         time.sleep(0.5)
 
     assert(worked)
-    getDriver.noSevereErrors(driver)
-    driver.close()
+    driver.noSevereErrors(www_driver)
+    www_driver.close()
 
 def test_multiple():
-    driver = getDriver.getDriver()
-    driver.get(configure.www_root + "multiple.html")
-    log = driver.find_element_by_id("logarea")
+    www_driver = driver.getDriver()
+    www_driver.get(configure.www_root + "multiple.html")
+    log = www_driver.find_element_by_id("logarea")
 
     worked = False
     for i in range(20):
@@ -37,13 +37,13 @@ def test_multiple():
         time.sleep(0.5)
 
     assert(worked)
-    getDriver.noSevereErrors(driver)
-    driver.close()
+    driver.noSevereErrors(www_driver)
+    www_driver.close()
 
 def test_copypaste():
-    driver = getDriver.getDriver()
-    driver.get(configure.www_root + "copypaste.html")
-    log = driver.find_element_by_id("log")
+    www_driver = driver.getDriver()
+    www_driver.get(configure.www_root + "copypaste.html")
+    log = www_driver.find_element_by_id("log")
     
     worked = False
     for i in range(20):
@@ -53,13 +53,13 @@ def test_copypaste():
         time.sleep(0.5)
 
     assert(worked)
-    getDriver.noSevereErrors(driver)
-    driver.close()
+    driver.noSevereErrors(www_driver)
+    www_driver.close()
 
 def test_steps():
-    driver = getDriver.getDriver()
-    driver.get(configure.www_root + "steps.html")
-    log = driver.find_element_by_id("logarea")
+    www_driver = driver.getDriver()
+    www_driver.get(configure.www_root + "steps.html")
+    log = www_driver.find_element_by_id("logarea")
 
     worked = False
     for i in range(20):
@@ -69,8 +69,8 @@ def test_steps():
         time.sleep(0.5)
 
     assert(worked)
-    getDriver.noSevereErrors(driver)
-    driver.close()
+    driver.noSevereErrors(www_driver)
+    www_driver.close()
 
 if (__name__ == "__main__"):
     test_simple()
