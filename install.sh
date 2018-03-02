@@ -3,7 +3,7 @@
 # parts. It is primarily designed to make it easy to update the
 # server code during development.
 #
-readonly www_dir=/var/www/html/brigl
+readonly www_dir=/usr/share/nginx/brigl
 
 cp -r web/*.html $www_dir/.
 cp -r web/js/*.js $www_dir/js/.

@@ -1,15 +1,18 @@
 #!/bin/bash
-readonly username=whoami
+readonly username=travis
+readonly www_dir=/usr/share/nginx/html
 
 # Update
 sudo apt update -qq
 
 # Install Python3
 sudo apt --yes install python3
+sudo apt --yes install python3-venv
 
 # Install nginx webserver & start it.
 sudo apt --yes install nginx
 sudo /etc/init.d/nginx start
+nginx -V
 
 # Install chrome.
 sudo apt --yes install chromium-chromedriver
@@ -31,26 +34,28 @@ pip install pytest
 pip install selenium
 
 # Configure server.
-sudo mkdir /var/www/html/brigl
-sudo chown $username:$username /var/www/html/brigl
+sudo mkdir $www_dir/brigl
 
-ls -la /var/www/html/
+whoami
+sudo chown $username:$username $www_dir/brigl
 
-mkdir /var/www/html/brigl/test
-cp -r web/parts /var/www/html/brigl/.
+ls -la $www_dir
 
-ls -la /var/www/html/brigl
+mkdir $www_dir/brigl/test
+cp -r web/parts $www_dir/brigl/.
+
+ls -la $www_dir/brigl
 
 # Install parts.
 wget http://www.ldraw.org/library/updates/complete.zip
 unzip complete.zip > foo.txt
-python tools/prepareParts ldraw/parts /var/www/html/brigl/parts
-python tools/prepareParts ldraw/p /var/www/html/brigl/parts
+python tools/prepareParts.py ldraw/parts $www_dir/brigl/parts
+python tools/prepareParts.py ldraw/p $www_dir/brigl/parts
 
-ls -la /var/www/html/brigl/parts
+ls -la $www_dir/brigl/parts
 
 # Install JS and html.
-ls -la /var/www/html/brigl/
+ls -la $www_dir/brigl/
 
 sh install.sh
 
