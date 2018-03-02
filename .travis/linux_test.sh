@@ -7,7 +7,7 @@ sudo apt update -qq
 
 # Install Python3
 sudo apt --yes install python3
-sudo apt --yes install python3-venv
+sudo apt --yes install python3.4-venv
 
 # Install nginx webserver & start it.
 sudo apt --yes install nginx
@@ -48,9 +48,9 @@ ls -la $www_dir/brigl
 
 # Install parts.
 wget http://www.ldraw.org/library/updates/complete.zip
-unzip complete.zip > foo.txt
-python tools/prepareParts.py ldraw/parts $www_dir/brigl/parts
-python tools/prepareParts.py ldraw/p $www_dir/brigl/parts
+unzip complete.zip > foo1.txt
+python tools/prepareParts.py ldraw/parts $www_dir/brigl/parts > foo2.txt
+python tools/prepareParts.py ldraw/p $www_dir/brigl/parts > foo3.txt
 
 ls -la $www_dir/brigl/parts
 
