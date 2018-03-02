@@ -20,7 +20,7 @@ export DISPLAY=:99.0
 sh -e /etc/init.d/xvfb start
 
 # Pause
-sleep 10
+sleep 20
 
 # Create Python virtual environment & activate.
 python3 -m venv brigl_env
