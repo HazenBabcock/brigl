@@ -7,8 +7,9 @@ sudo apt update -qq
 # Install Python3
 sudo apt --yes install python3
 
-# Install nginx webserver.
+# Install nginx webserver & start it.
 sudo apt --yes install nginx
+sudo /etc/init.d/nginx start
 
 # Install chrome.
 sudo apt --yes install chromium-chromedriver
@@ -22,8 +23,8 @@ sh -e /etc/init.d/xvfb start
 sleep 10
 
 # Create Python virtual environment & activate.
-python3 -m venv
-source venv/bin/activate
+python3 -m venv brigl_env
+source brigl_env/bin/activate
 
 # Install python modules.
 pip install pytest
@@ -42,7 +43,7 @@ ls -la /var/www/html/brigl
 
 # Install parts.
 wget http://www.ldraw.org/library/updates/complete.zip
-unzip complete.zip
+unzip complete.zip > foo.txt
 python tools/prepareParts ldraw/parts /var/www/html/brigl/parts
 python tools/prepareParts ldraw/p /var/www/html/brigl/parts
 
