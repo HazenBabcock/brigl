@@ -18,9 +18,15 @@ nginx -V
 sudo apt --yes install chromium-chromedriver
 
 # Add chrome-driver to path.
+echo ls /usr/lib/chromium-browser/
+ls /usr/lib/chromium-browser/
+
 export PATH=$PATH:/usr/lib/chromium-browser/
 export DISPLAY=:99.0
 sh -e /etc/init.d/xvfb start
+
+echo path is
+echo $PATH
 
 # Pause
 sleep 20
@@ -36,14 +42,18 @@ pip install selenium
 # Configure server.
 sudo mkdir $www_dir/brigl
 
+# Set travis as the owner so we don't need sudo.
 whoami
 sudo chown $username:$username $www_dir/brigl
 
+echo ls -la $www_dir
 ls -la $www_dir
 
+mkdir $www_dir/brigl/js
 mkdir $www_dir/brigl/test
 cp -r web/parts $www_dir/brigl/.
 
+echo ls -la $www_dir/brigl
 ls -la $www_dir/brigl
 
 # Install parts.
@@ -52,14 +62,15 @@ unzip complete.zip > foo1.txt
 python tools/prepareParts.py ldraw/parts $www_dir/brigl/parts > foo2.txt
 python tools/prepareParts.py ldraw/p $www_dir/brigl/parts > foo3.txt
 
+echo ls -la $www_dir/brigl/parts
 ls -la $www_dir/brigl/parts
 
 # Install JS and html.
+echo ls -la $www_dir/brigl/
 ls -la $www_dir/brigl/
 
 sh install.sh
 
 # Run tests.
 cd test
-ls -la
 pytest
