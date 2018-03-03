@@ -7,7 +7,13 @@ them with WebGL.
 Note: The original git conversion without any further modifications is
 available in the "original" branch.
 
+[![Linux Build Status](https://travis-ci.org/HazenBabcock/brigl.svg?branch=master)](https://travis-ci.org/HazenBabcock/brigl)
 [![Documentation Status](https://readthedocs.org/projects/brigl/badge/?version=latest)](https://brigl.readthedocs.io/)
+
+
+## How to use ##
+
+The documentation is [here](https://brigl.readthedocs.io/en/latest/).
 
 
 ## Online demos ##
@@ -41,8 +47,6 @@ It then starts a WebGL context and renders your model!
 * Multiple view per page
 
 
-## How to use ##
 
-The documentation is [here](https://brigl.readthedocs.io/en/latest/).
 
 
