@@ -35,14 +35,32 @@ def getDriver():
 class BRIGLTestException():
     pass
 
-def noSevereErrors(driver):
+def noSevereErrors(driver, ignore_404 = []):
+    """
+    ignore_404 - A list of files for which it is okay if they are missing.
+    """
+    ignore_404.append("favicon.ico")
+    
     log_data = driver.get_log('browser')
     severe_errors = parseLog(log_data)
     if (len(severe_errors) > 0):
-        print("Severe error(s) detected:")
-        for elt in severe_errors:
-            print(elt)
-        raise BRIGLTextException("Severe error(s) detected.")
+        
+        is_severe = False
+        for s_err in severe_errors:
+            is_ignored = False
+            for i_404 in ignore_404:
+                if (i_404 in s_err['message']):
+                    is_ignored = True
+                    break
+            if not is_ignored:
+                is_severe = True
+                break
+            
+        if is_severe:
+            print("Severe error(s) detected:")
+            for elt in severe_errors:
+                print(elt)
+            raise BRIGLTestException("Severe error(s) detected.")
 
 def parseLog(log_data, level = 'SEVERE'):
     """
