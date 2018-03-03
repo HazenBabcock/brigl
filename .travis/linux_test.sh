@@ -53,6 +53,7 @@ ls -la $www_dir
 
 mkdir $www_dir/brigl/js
 mkdir $www_dir/brigl/test
+cp web/ship.mpd $www_dir/brigl/.
 cp -r web/parts $www_dir/brigl/.
 
 echo ls -la $www_dir/brigl
