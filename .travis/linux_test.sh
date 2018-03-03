@@ -17,11 +17,13 @@ nginx -V
 # Install chrome.
 sudo apt --yes install chromium-chromedriver
 
-# Add chrome-driver to path.
-echo ls /usr/lib/chromium-browser/
-ls /usr/lib/chromium-browser/
+# Copy chromedriver to test directory.
+echo ls -la /usr/lib/chromium-browser/
+ls -la /usr/lib/chromium-browser/
 
-export PATH=$PATH:/usr/lib/chromium-browser/
+cp /usr/lib/chromium-browser/chromedriver ./test/.
+sudo chown $username:$username ./test/chromedriver
+
 export DISPLAY=:99.0
 sh -e /etc/init.d/xvfb start
 
