@@ -23,6 +23,11 @@ This version in [action](https://hazenbabcock.github.io/brigl/index.html).
 The original in [action](http://www.lugato.net/brigl/index.html).
 
 
+## Docker ##
+
+[Docker](https://www.docker.com) images are available [here](https://hub.docker.com/u/brigl/).
+
+
 ## How it works ##
 
 Brigl is 100% pure javascript, with no server logic. The only thing stored
