@@ -1426,7 +1426,12 @@ BRIGL.BriglContainer = function(container, model, options) {
     this.lastMouseY = null;
     this.touches = null;
     this.number_touches = 0;
-
+    
+    this.latlon = (options && options.latlon);
+    this.mesh_matrix = null;
+    this.lat_angle = 0;
+    this.lon_angle = 0;
+    
     this.setup(options ? options : {
         antialias: true
     });
@@ -1472,6 +1477,11 @@ BRIGL.BriglContainer.prototype = {
 
         if (oldMesh) this.scene.remove(oldMesh);
 
+        if (this.latlon){
+            //this.mesh.matrix.updateMatrix();
+            this.mesh_matrix = new THREE.Matrix4();
+            this.mesh_matrix.makeRotationFromQuaternion(this.mesh.quaternion);
+        }
         this.render();
     },
 
@@ -1515,15 +1525,36 @@ BRIGL.BriglContainer.prototype = {
         var deltaY = newY - this.lastMouseY;
 
         if (this.mouseDown == 1) {
-            // rotation
-            var q2 = new THREE.Quaternion();
-            q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
-            var q = new THREE.Quaternion();
-            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
 
-            this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
-            this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
-            this.mesh.updateMatrix();
+            // Rotation using quaternions.            
+            if (!this.latlon){
+
+                var q2 = new THREE.Quaternion();
+                q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
+                var q = new THREE.Quaternion();
+                q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
+
+                this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
+                this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
+                this.mesh.updateMatrix();
+            }
+            // Rotation using rotation matrices (latitude / longitude rotation).
+            else {
+                this.lat_angle += this.degToRad(deltaY / 5);
+                this.lon_angle += this.degToRad(deltaX / 5);
+                var m1 = new THREE.Matrix4();
+                m1.makeRotationX(this.lat_angle);
+                var m2 = new THREE.Matrix4();
+                m2.makeRotationY(this.lon_angle);
+
+                this.mesh.matrix.copy(this.mesh_matrix);
+                this.mesh.applyMatrix(m1);
+                this.mesh.applyMatrix(m2);
+                
+                //this.mesh.matrix.multiplyMatrices(m1, this.mesh.matrix);
+                //this.mesh.matrix.multiplyMatrices(m2, this.mesh.matrix);
+                //this.mesh.updateMatrix();
+            }
         } else if (this.mouseDown == 2) {
             // pan
             this.mesh.position.add(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
