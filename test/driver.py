@@ -32,7 +32,7 @@ def getDriver():
 
 # Utility functions.
 
-class BRIGLTestException():
+class BRIGLTestException(Exception):
     pass
 
 def noSevereErrors(driver, ignore_404 = []):
