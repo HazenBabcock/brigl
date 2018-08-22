@@ -29,7 +29,8 @@ These options apply to the ``loadModelByName()``, ``loadModelByData()`` and ``lo
 BRIGL.BriglContainer
 --------------------
 
-* ``antialias`` : use antialias. Default is true.
+* ``antialias`` : Use antialiasing. Default is ``true``.
+* ``latlon`` : Use latidude / longitude rotation. Default is ``false``.
 
 And all the options supported `three.js <https://threejs.org/docs/#api/renderers/WebGLRenderer>`_.
 
