@@ -75,6 +75,7 @@ In this installation all of the parts are in a folder called ``parts``.
 3. Prepare parts using the prepareParts.py Python script. ::
 
    $ cd /var/www/html/brigl
+   $ mkdir parts
    $ python /path/to/brigl/tools/prepareParts.py path/to/ldraw_dir/parts ./parts
    $ python /path/to/brigl/tools/prepareParts.py path/to/ldraw_dir/p ./parts
 
