@@ -30,7 +30,10 @@ BRIGL.BriglContainer
 --------------------
 
 * ``antialias`` : Use antialiasing. Default is ``true``.
+* ``backgroundColor`` : The container background color. Default is ``0xffffff``.
+* ``directionalLightColor`` : The color for the directional lighting source. Default is ``0xaaaaaa``.
 * ``latlon`` : Use latidude / longitude rotation. Default is ``false``.
+* ``pointLightColor`` : The color for the point lighting source. Default is ``0xffffff``.
 
 And all the options supported `three.js <https://threejs.org/docs/#api/renderers/WebGLRenderer>`_.
 
