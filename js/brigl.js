@@ -1682,12 +1682,21 @@ BRIGL.BriglContainer.prototype = {
         // SCENE
         this.scene = new THREE.Scene();
 
-        // Use prototype.js to query for the container size.
-        var layout = new Element.Layout(this.container)
+        // Check for prototype.js functionality.
+        if (typeof Element.Layout != 'undefined'){
+            
+            // Use prototype.js to query for the container size.
+            var layout = new Element.Layout(this.container)
         
-	// CAMERA
-        var SCREEN_WIDTH = layout.get('width'),
-            SCREEN_HEIGHT = layout.get('height');
+	    // CAMERA
+            var SCREEN_WIDTH = layout.get('width'),
+                SCREEN_HEIGHT = layout.get('height');
+        }
+        else{
+            var SCREEN_WIDTH = this.container.scrollWidth,
+                SCREEN_HEIGHT = this.container.scrollHeight;
+        }
+        
         var VIEW_ANGLE = 45,
             ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT,
             NEAR = 0.1,
