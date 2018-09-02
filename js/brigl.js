@@ -1426,7 +1426,12 @@ BRIGL.BriglContainer = function(container, model, options) {
     this.lastMouseY = null;
     this.touches = null;
     this.number_touches = 0;
-
+    
+    this.latlon = (options && options.latlon);
+    this.mesh_matrix = null;
+    this.lat_angle = 0;
+    this.lon_angle = 0;
+    
     this.setup(options ? options : {
         antialias: true
     });
@@ -1449,16 +1454,37 @@ BRIGL.BriglContainer.prototype = {
         var oldMesh = this.mesh;
         this.mesh = newmesh;
         if (resetView) {
-            newmesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, -0.5).normalize(), 3.34);
-	    
-            // place the camera at a right distance to gracefully fill the area
-            var radiusDelta = newmesh.brigl.radius / 180.0; // empirical	    
-            this.camera.position.set(0 * radiusDelta, 150 * radiusDelta, 400 * radiusDelta);
-            this.camera.lookAt(this.scene.position);
+            if (!this.latlon){
+                newmesh.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, -0.5).normalize(), 3.34);
+
+                // place the camera at a right distance to gracefully fill the area
+                var radiusDelta = newmesh.brigl.radius / 180.0; // empirical	    
+                this.camera.position.set(0 * radiusDelta, 150 * radiusDelta, 400 * radiusDelta);
+                this.camera.lookAt(this.scene.position);
+	    }
+            else{
+                this.mesh_matrix = new THREE.Matrix4();
+                this.mesh_matrix.makeRotationZ(Math.PI);
+                this.lat_angle = this.degToRad(30);
+                this.lon_angle = this.degToRad(30);
+                this.latLonRotate();
+
+                // place the camera at a right distance to gracefully fill the area
+                var radiusDelta = newmesh.brigl.radius / 180.0; // empirical	    
+                this.camera.position.set(0 * radiusDelta, 0 * radiusDelta, 500 * radiusDelta);
+                this.camera.lookAt(this.scene.position);
+            }            
+
         } else {
             if (oldMesh) {
-                newmesh.position.copy(oldMesh.position);
-                newmesh.quaternion.copy(oldMesh.quaternion);
+                if (!this.latlon){
+                    newmesh.position.copy(oldMesh.position);
+                    newmesh.quaternion.copy(oldMesh.quaternion);
+                }
+                else {
+                    this.mesh_matrix = new THREE.Matrix4();
+                    this.latLonRotate();
+                }
             }
         }
         this.scene.add(this.mesh);
@@ -1515,15 +1541,31 @@ BRIGL.BriglContainer.prototype = {
         var deltaY = newY - this.lastMouseY;
 
         if (this.mouseDown == 1) {
-            // rotation
-            var q2 = new THREE.Quaternion();
-            q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
-            var q = new THREE.Quaternion();
-            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
 
-            this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
-            this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
-            this.mesh.updateMatrix();
+            // Rotation using quaternions.            
+            if (!this.latlon){
+
+                var q2 = new THREE.Quaternion();
+                q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
+                var q = new THREE.Quaternion();
+                q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
+
+                this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
+                this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
+                this.mesh.updateMatrix();
+            }
+            // Rotation using rotation matrices (latitude / longitude rotation).
+            else {
+                this.lat_angle += this.degToRad(deltaY / 5);
+                if (this.lat_angle > 0.5 * Math.PI){
+                    this.lat_angle = 0.5 * Math.PI;
+                }
+                else if (this.lat_angle < -0.5 * Math.PI){
+                    this.lat_angle = -0.5 * Math.PI;
+                }
+                this.lon_angle += this.degToRad(deltaX / 5);
+                this.latLonRotate();
+            }
         } else if (this.mouseDown == 2) {
             // pan
             this.mesh.position.add(new THREE.Vector3(deltaX / 5.0, -deltaY / 5.0));
@@ -1554,14 +1596,27 @@ BRIGL.BriglContainer.prototype = {
 	    var deltaX = event.touches[0].pageX - this.touches[0];
 	    var deltaY = event.touches[0].pageY - this.touches[1];
 
-            var q2 = new THREE.Quaternion();
-            q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
-            var q = new THREE.Quaternion();
-            q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
+            if (!this.latlon){
+                var q2 = new THREE.Quaternion();
+                q2.setFromAxisAngle(new THREE.Vector3(1, 0, 0), this.degToRad(deltaY / 5));
+                var q = new THREE.Quaternion();
+                q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.degToRad(deltaX / 5));
 
-            this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
-            this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
-            this.mesh.updateMatrix();
+                this.mesh.quaternion.multiplyQuaternions(q, this.mesh.quaternion);
+                this.mesh.quaternion.multiplyQuaternions(q2, this.mesh.quaternion);
+                this.mesh.updateMatrix();
+            }
+            else{
+                this.lat_angle += this.degToRad(deltaY / 5);
+                if (this.lat_angle > 0.5 * Math.PI){
+                    this.lat_angle = 0.5 * Math.PI;
+                }
+                else if (this.lat_angle < -0.5 * Math.PI){
+                    this.lat_angle = -0.5 * Math.PI;
+                }
+                this.lon_angle += this.degToRad(deltaX / 5);
+                this.latLonRotate();
+            }
         }
 	
 	// 2 touches are panning and scaling.
@@ -1610,6 +1665,18 @@ BRIGL.BriglContainer.prototype = {
 	    this.touches.push(event.touches[i].pageY);
 	}
     },
+
+    latLonRotate: function(){
+        var m1 = new THREE.Matrix4();
+        m1.makeRotationY(this.lon_angle);
+
+        var m2 = new THREE.Matrix4();
+        m2.makeRotationX(this.lat_angle);
+
+        this.mesh.matrix.copy(this.mesh_matrix);
+        this.mesh.applyMatrix(m1);
+        this.mesh.applyMatrix(m2);
+    },
     
     setup: function(options) {
         // SCENE
@@ -1639,15 +1706,15 @@ BRIGL.BriglContainer.prototype = {
         // RENDERER
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	this.renderer.setClearColor( 0xffffff, 1 );
+	this.renderer.setClearColor((options.backgroundColor ? options.backgroundColor : 0xffffff), 1 );
         this.container.appendChild(this.renderer.domElement);
 
         // LIGHT (lighting could be choosen better)
-        var light = new THREE.PointLight(0xffffff);
+        var light = new THREE.PointLight((options.pointLightColor ? options.pointLightColor : 0xffffff));
         light.position.set(0, 250, 0);
         this.scene.add(light);
 
-        var light = new THREE.DirectionalLight(0xaaaaaa);
+        var light = new THREE.DirectionalLight((options.directionalLightColor ? options.directionalLightColor : 0xaaaaaa));
         light.position.set(0, 0, 100);
         this.scene.add(light);
 
