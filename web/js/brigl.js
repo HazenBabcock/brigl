@@ -1706,15 +1706,15 @@ BRIGL.BriglContainer.prototype = {
         // RENDERER
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	this.renderer.setClearColor( 0xffffff, 1 );
+	this.renderer.setClearColor((options.backgroundColor ? options.backgroundColor : 0xffffff), 1 );
         this.container.appendChild(this.renderer.domElement);
 
         // LIGHT (lighting could be choosen better)
-        var light = new THREE.PointLight(0xffffff);
+        var light = new THREE.PointLight((options.pointLightColor ? options.pointLightColor : 0xffffff));
         light.position.set(0, 250, 0);
         this.scene.add(light);
 
-        var light = new THREE.DirectionalLight(0xaaaaaa);
+        var light = new THREE.DirectionalLight((options.directionalLightColor ? options.directionalLightColor : 0xaaaaaa));
         light.position.set(0, 0, 100);
         this.scene.add(light);
 
