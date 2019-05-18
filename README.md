@@ -7,7 +7,13 @@ them with WebGL.
 Note: The original git conversion without any further modifications is
 available in the "original" branch.
 
+[![Linux Build Status](https://travis-ci.org/HazenBabcock/brigl.svg?branch=master)](https://travis-ci.org/HazenBabcock/brigl)
 [![Documentation Status](https://readthedocs.org/projects/brigl/badge/?version=latest)](https://brigl.readthedocs.io/)
+
+
+## How to use ##
+
+The documentation is [here](https://brigl.readthedocs.io/en/latest/).
 
 
 ## Online demos ##
@@ -15,6 +21,11 @@ available in the "original" branch.
 This version in [action](https://hazenbabcock.github.io/brigl/index.html).
 
 The original in [action](http://www.lugato.net/brigl/index.html).
+
+
+## Docker ##
+
+[Docker](https://www.docker.com) images are available [here](https://hub.docker.com/u/brigl/).
 
 
 ## How it works ##
@@ -41,8 +52,6 @@ It then starts a WebGL context and renders your model!
 * Multiple view per page
 
 
-## How to use ##
 
-The documentation is [here](https://brigl.readthedocs.io/en/latest/).
 
 

@@ -9,8 +9,8 @@ Options are used like this. ::
   var builder = new BRIGL.Builder("parts/", {ajaxMethod:"jquery"});
 
 * ``forceLowercase`` : Forces partname to lowercase when downloading them from the server. Useful if you have inconsistencies in part name case. Default is false.
-* ``dontUseSubfolders`` : As explained in the installation, avoid using subfolders for parts. Default is false.
-* ``ajaxMethod`` : choose which library to use for ajax calls. Valid values are "jquery" and "prototype". Defaults is "prototype".
+* ``dontUseSubfolders`` : Use ``true`` if you performed a simple installation and your parts directory structure is the same as the LDraw standard. Use ``false`` if you performed the advanced installation and your parts directory structure has been optimized for BRIGL.
+* ``ajaxMethod`` : Choose which library to use for ajax calls. Valid values are "jquery" and "prototype". Defaults is "prototype".
 
 loadModelBy..
 ~~~~~~~~~~~~~
@@ -29,7 +29,11 @@ These options apply to the ``loadModelByName()``, ``loadModelByData()`` and ``lo
 BRIGL.BriglContainer
 --------------------
 
-* ``antialias`` : use antialias. Default is true.
+* ``antialias`` : Use antialiasing. Default is ``true``.
+* ``backgroundColor`` : The container background color. Default is ``0xffffff``.
+* ``directionalLightColor`` : The color for the directional lighting source. Default is ``0xaaaaaa``.
+* ``latlon`` : Use latidude / longitude rotation. Default is ``false``.
+* ``pointLightColor`` : The color for the point lighting source. Default is ``0xffffff``.
 
 And all the options supported `three.js <https://threejs.org/docs/#api/renderers/WebGLRenderer>`_.
 

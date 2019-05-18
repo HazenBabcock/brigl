@@ -1,0 +1,10 @@
+
+language: generic
+sudo: required
+
+script:
+  - bash ./.travis/linux_test.sh
+
+branches:
+  only:
+    - master
