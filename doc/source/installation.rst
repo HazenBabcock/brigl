@@ -84,3 +84,17 @@ In this installation all of the parts are in a folder called ``parts``.
 
 .. note:: prepareParts.py will also create sub-directories in parts that use the first
 	  letter of the part name as the directory name, for example a.dat -> a/a.dat.
+
+
+Customizing Colors
+------------------
+
+BRIGL uses the colors specified in the ``web/js/brigl_materials.js``. This file was
+generated from a ``LDConfig.ldr`` file using ``tools/ld_config_to_brigl_materials.py``. You
+can use this Python script yourself if you have customized ``LDConfig.ldr``. ::
+
+  $ cd brigl/tools
+  $ python ld_config_to_brigl_materials.py --ldconfig path/to/LDConfig.ldr
+  $ cp brigl_materials.js path/to/web-server/brigl/js/.
+
+  
