@@ -21,7 +21,7 @@ for elt in os.listdir(sys.argv[1]):
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
-    print("Processing", elt, os.path.join(out_dir, elt)
+    print("Processing", elt, os.path.join(out_dir, elt))
     
     if os.path.isfile(os.path.join(sys.argv[1], elt)):
         shutil.copyfile(os.path.join(sys.argv[1], elt),
