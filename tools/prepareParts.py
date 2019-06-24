@@ -17,16 +17,16 @@ if (len(sys.argv) != 3):
     exit()
 
 for elt in os.listdir(sys.argv[1]):
-    out_dir = sys.argv[2] + os.path.sep + elt[0]
+    out_dir = os.path.join(sys.argv[2], elt[0])
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
 
-    print("Processing", elt, out_dir + os.path.sep + elt)
+    print("Processing", elt, os.path.join(out_dir, elt)
     
-    if os.path.isfile(sys.argv[1] + os.path.sep + elt):
-        shutil.copyfile(sys.argv[1] + os.path.sep + elt,
-                        out_dir + os.path.sep + elt)
+    if os.path.isfile(os.path.join(sys.argv[1], elt)):
+        shutil.copyfile(os.path.join(sys.argv[1], elt),
+                        os.path.join(out_dir, elt))
     else:
-        distutils.dir_util.copy_tree(sys.argv[1] + os.path.sep + elt,
-                                     out_dir + os.path.sep + elt)
+        distutils.dir_util.copy_tree(os.path.join(sys.argv[1], elt),
+                                     os.path.join(out_dir, elt))
 
