@@ -1,5 +1,5 @@
 # Distro
-FROM ubuntu:artful
+FROM ubuntu:bionic
 MAINTAINER Hazen Babcock <hbabcock@mac.com>
 
 # Update sources
@@ -10,6 +10,7 @@ RUN apt-get --yes install git
 RUN apt-get --yes install nginx
 RUN apt-get --yes install python
 RUN apt-get --yes install python3
+RUN apt-get --yes install python3-distutils
 RUN apt-get --yes install unzip
 RUN apt-get --yes install wget
 
