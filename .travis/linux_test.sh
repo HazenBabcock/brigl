@@ -24,8 +24,8 @@ ls -la /usr/lib/chromium-browser/
 cp /usr/lib/chromium-browser/chromedriver ./test/.
 sudo chown $username:$username ./test/chromedriver
 
-export DISPLAY=:99.0
-sh -e /etc/init.d/xvfb start
+#export DISPLAY=:99.0
+#sh -e /etc/init.d/xvfb start
 
 echo path is
 echo $PATH
