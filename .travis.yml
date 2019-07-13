@@ -4,6 +4,9 @@ language: generic
 sudo: required
 services:
   - xvfb
+
+addons:
+  chrome: stable
   
 script:
   - bash ./.travis/linux_test.sh
