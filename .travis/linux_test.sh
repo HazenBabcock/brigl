@@ -7,7 +7,7 @@ sudo apt update -qq
 
 # Install Python3
 sudo apt --yes install python3
-sudo apt --yes install python3.4-venv
+sudo apt --yes install python3-venv
 
 # Install nginx webserver & start it.
 sudo apt --yes install nginx
