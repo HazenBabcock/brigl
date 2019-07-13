@@ -24,7 +24,7 @@ These options apply to the ``loadModelByName()``, ``loadModelByData()`` and ``lo
 * ``dontSmooth`` : Avoid smoothing process. Default is false.
 * ``blackLines`` : Draw all edge lines in black instead of their color. Default is false.
 * ``startColor`` : Use value as starting color. Default is 16.
-* ``startingMatrix`` : Use value as the starting transformation matrix. Default is undefined.
+* ``startingMatrix`` : Use value as the starting transformation matrix. Default is undefined. Options are a ``THREE.Matrix4()`` matrix, an array in LDraw transform format ``[x, y, z, a, b, c, d, e, f, g, h, i]`` or a string in LDraw transform format ``"x y z a b c d e f g h i"``.
 
 BRIGL.BriglContainer
 --------------------

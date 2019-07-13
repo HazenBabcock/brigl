@@ -18,39 +18,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-                Revision 6:
-                - Handle touch events.
-		- Updated to work with three.js r74.
-
-		Revision 5:
-		- Better error handling
-		- Support for jQuery instead of prototype
-		- more options
-
-		Revision 4:
-		- Animation support
-		- Colored lines
-		- Various fixings
-
-		Revision 3:
-		- Better step support
-		- Better handling of non-BFC certified parts
-		- More optimized vertex merging
-		- Added smoothing of faces based on Conditional Lines
-		- Various fixings
-
-		Revision 2:
-		- Added zoom and padding
-		- Added mesh centering and vertex merging
-		- Added crude line handling (no conditionals)
-		- Added experimental step support
-		- Default color now 16.
-		
-		TODO:
-		- restore centering of the model
-		- choose better colors?
-		- handle name with spaces
-
 */
 'use strict';
 
@@ -671,8 +638,42 @@ BRIGL.MeshFiller.prototype = {
         var blackLines = options.blackLines ? options.blackLines : false;
         var startColor = options.startColor ? options.startColor : 16;
 
-        var transform = options.startingMatrix ? options.startingMatrix : new THREE.Matrix4();
+        // Handling of startingMatrix options (undefined, object, array, string),
+        var starting_matrix_type = Object.prototype.toString.call(options.startingMatrix).slice(8, -1).toLowerCase();
+        console.log(starting_matrix_type);
+        switch (starting_matrix_type) {
 
+        // We're assuming that object is a THREE.Matrix4 object.
+        case "object":
+            var transform = options.startingMatrix;
+            break;
+
+        // DAT format array of values (x y z a b c d e f g h i).
+        case "array":
+            var vals = options.startingMatrix;
+            var transform = new THREE.Matrix4();
+            transform.set(parseFloat(vals[3]), parseFloat(vals[4]), parseFloat(vals[5]), parseFloat(vals[0]),
+		          parseFloat(vals[6]), parseFloat(vals[7]), parseFloat(vals[8]), parseFloat(vals[1]),
+		          parseFloat(vals[9]), parseFloat(vals[10]), parseFloat(vals[11]), parseFloat(vals[2]),
+		          0.0, 0.0, 0.0, 1.0);
+            break;
+
+        // Space delimited string of DAT format array of values (x y z a b c d e f g h i).
+        case "string":
+            var vals = options.startingMatrix.split(" ");
+            var transform = new THREE.Matrix4();
+            transform.set(parseFloat(vals[3]), parseFloat(vals[4]), parseFloat(vals[5]), parseFloat(vals[0]),
+		          parseFloat(vals[6]), parseFloat(vals[7]), parseFloat(vals[8]), parseFloat(vals[1]),
+		          parseFloat(vals[9]), parseFloat(vals[10]), parseFloat(vals[11]), parseFloat(vals[2]),
+		          0.0, 0.0, 0.0, 1.0);
+            break;                    
+
+        // Default is to just use the identity matrix.
+        default:
+            var transform = new THREE.Matrix4();
+        }
+            
+            
         var geometrySolid = new THREE.Geometry();
 
         this.wantsLines = drawLines;
