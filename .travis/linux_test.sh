@@ -24,6 +24,12 @@ ls -la /usr/lib/chromium-browser/
 cp /usr/lib/chromium-browser/chromedriver ./test/.
 sudo chown $username:$username ./test/chromedriver
 
+# Check chromium and chrome-driver versions.
+echo chromium version check
+./test/chromedriver --version
+/usr/bin/chromium-browser --version
+/usr/lib/chromium-browser --version
+
 #export DISPLAY=:99.0
 #sh -e /etc/init.d/xvfb start
 
