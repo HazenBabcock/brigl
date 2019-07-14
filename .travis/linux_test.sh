@@ -81,5 +81,7 @@ sh install.sh
 
 # Run tests.
 cd test
+which chromium-browser
+which chrome
 python driver.py
 pytest
