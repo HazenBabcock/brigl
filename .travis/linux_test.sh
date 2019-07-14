@@ -28,7 +28,6 @@ sudo chown $username:$username ./test/chromedriver
 echo chromium version check
 ./test/chromedriver --version
 /usr/bin/chromium-browser --version
-/usr/lib/chromium-browser --version
 
 #export DISPLAY=:99.0
 #sh -e /etc/init.d/xvfb start
@@ -82,4 +81,5 @@ sh install.sh
 
 # Run tests.
 cd test
+python driver.py
 pytest

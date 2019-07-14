@@ -79,3 +79,9 @@ def pprintLog(log_data):
     for elt in log_data:
         print(elt)
         
+
+if (__name__ == "__main__"):
+    driver = getDriver()
+    print("version is", driver.capabilities['version'])
+    driver.close()
+    
